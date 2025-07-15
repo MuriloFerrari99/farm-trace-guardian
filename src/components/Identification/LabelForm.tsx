@@ -71,7 +71,7 @@ const LabelForm = () => {
               </SelectTrigger>
               <SelectContent>
                 {receptionsLoading ? (
-                  <SelectItem value="" disabled>Carregando...</SelectItem>
+                  <SelectItem value="loading" disabled>Carregando...</SelectItem>
                 ) : (
                   approvedReceptions.map((reception) => (
                     <SelectItem key={reception.id} value={reception.id}>
