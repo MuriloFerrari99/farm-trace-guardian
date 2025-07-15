@@ -72,13 +72,7 @@ const Sidebar = () => {
             <NavLink
               key={item.path}
               to={item.path}
-              className={({ isActive }) =>
-                `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-green-50 text-green-700 border-l-4 border-green-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`
-              }
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             >
               <item.icon className="h-5 w-5" />
               <span className="font-medium">{t(item.key)}</span>
@@ -105,13 +99,7 @@ const Sidebar = () => {
                   <NavLink
                     key={item.path}
                     to={item.path}
-                    className={({ isActive }) =>
-                      `flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors ${
-                        isActive
-                          ? 'bg-green-50 text-green-700 border-l-4 border-green-700'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`
-                    }
+                    className="flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   >
                     <item.icon className="h-4 w-4" />
                     <span className="font-medium">{t(item.key)}</span>
@@ -141,13 +129,7 @@ const Sidebar = () => {
                   <NavLink
                     key={item.path}
                     to={item.path}
-                    className={({ isActive }) =>
-                      `flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors ${
-                        isActive
-                          ? 'bg-green-50 text-green-700 border-l-4 border-green-700'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`
-                    }
+                    className="flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   >
                     <item.icon className="h-4 w-4" />
                     <span className="font-medium">{item.key}</span>
@@ -163,13 +145,7 @@ const Sidebar = () => {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-green-50 text-green-700 border-l-4 border-green-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`
-                }
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               >
                 <item.icon className="h-5 w-5" />
                 <span className="font-medium">{t(item.key)}</span>
