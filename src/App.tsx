@@ -4,7 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { LanguageProvider } from './contexts/LanguageContext';
-import { useAuth } from './hooks/useAuth';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuthContext } from './contexts/AuthContext';
 import AuthModal from './components/Auth/AuthModal';
 import Sidebar from './components/Layout/Sidebar';
 import Header from './components/Layout/Header';
@@ -15,7 +16,7 @@ import Identification from './pages/Identification';
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuthContext();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   if (loading) {
@@ -81,8 +82,10 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <AppContent />
-        <Toaster position="top-right" />
+        <AuthProvider>
+          <AppContent />
+          <Toaster position="top-right" />
+        </AuthProvider>
       </LanguageProvider>
     </QueryClientProvider>
   );
