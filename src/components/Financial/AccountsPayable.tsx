@@ -28,8 +28,8 @@ const AccountsPayable = () => {
         `)
         .order('due_date', { ascending: true });
 
-      if (filterStatus) {
-        query = query.eq('status', filterStatus);
+      if (filterStatus && ['previsto', 'realizado', 'cancelado'].includes(filterStatus)) {
+        query = query.eq('status', filterStatus as 'previsto' | 'realizado' | 'cancelado');
       }
 
       const { data, error } = await query;

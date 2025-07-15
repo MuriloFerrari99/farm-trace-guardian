@@ -25,11 +25,11 @@ const CashFlow = () => {
         .select('*')
         .order('flow_date', { ascending: false });
 
-      if (filterType) {
-        query = query.eq('flow_type', filterType);
+      if (filterType && (filterType === 'entrada' || filterType === 'saida')) {
+        query = query.eq('flow_type', filterType as 'entrada' | 'saida');
       }
-      if (filterOrigin) {
-        query = query.eq('origin', filterOrigin);
+      if (filterOrigin && ['vendas', 'acc', 'lc', 'emprestimo', 'capital', 'outros'].includes(filterOrigin)) {
+        query = query.eq('origin', filterOrigin as 'vendas' | 'acc' | 'lc' | 'emprestimo' | 'capital' | 'outros');
       }
 
       const { data, error } = await query;
