@@ -14,8 +14,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 const CashFlow = () => {
   const [showNewEntry, setShowNewEntry] = useState(false);
-  const [filterType, setFilterType] = useState('');
-  const [filterOrigin, setFilterOrigin] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [filterOrigin, setFilterOrigin] = useState('all');
 
   const { data: cashFlowData } = useQuery({
     queryKey: ['cash-flow', filterType, filterOrigin],
@@ -25,10 +25,10 @@ const CashFlow = () => {
         .select('*')
         .order('flow_date', { ascending: false });
 
-      if (filterType && (filterType === 'entrada' || filterType === 'saida')) {
+      if (filterType && filterType !== 'all' && (filterType === 'entrada' || filterType === 'saida')) {
         query = query.eq('flow_type', filterType as 'entrada' | 'saida');
       }
-      if (filterOrigin && ['vendas', 'acc', 'lc', 'emprestimo', 'capital', 'outros'].includes(filterOrigin)) {
+      if (filterOrigin && filterOrigin !== 'all' && ['vendas', 'acc', 'lc', 'emprestimo', 'capital', 'outros'].includes(filterOrigin)) {
         query = query.eq('origin', filterOrigin as 'vendas' | 'acc' | 'lc' | 'emprestimo' | 'capital' | 'outros');
       }
 
@@ -190,7 +190,7 @@ const CashFlow = () => {
                   <SelectValue placeholder="Todos os tipos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os tipos</SelectItem>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
                   <SelectItem value="entrada">Entrada</SelectItem>
                   <SelectItem value="saida">Saída</SelectItem>
                 </SelectContent>
@@ -203,7 +203,7 @@ const CashFlow = () => {
                   <SelectValue placeholder="Todas as origens" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as origens</SelectItem>
+                  <SelectItem value="all">Todas as origens</SelectItem>
                   <SelectItem value="vendas">Vendas</SelectItem>
                   <SelectItem value="acc">ACC</SelectItem>
                   <SelectItem value="lc">Carta de Crédito</SelectItem>

@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 const AccountsReceivable = () => {
   const [showNewReceivable, setShowNewReceivable] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
 
   const { data: receivables } = useQuery({
     queryKey: ['accounts-receivable', searchTerm, filterStatus],
@@ -24,7 +24,7 @@ const AccountsReceivable = () => {
         .select('*')
         .order('due_date', { ascending: true });
 
-      if (filterStatus && ['previsto', 'realizado', 'cancelado'].includes(filterStatus)) {
+      if (filterStatus && filterStatus !== 'all' && ['previsto', 'realizado', 'cancelado'].includes(filterStatus)) {
         query = query.eq('status', filterStatus as 'previsto' | 'realizado' | 'cancelado');
       }
 
@@ -200,7 +200,7 @@ const AccountsReceivable = () => {
                   <SelectValue placeholder="Todos os status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os status</SelectItem>
+                  <SelectItem value="all">Todos os status</SelectItem>
                   <SelectItem value="previsto">A Receber</SelectItem>
                   <SelectItem value="realizado">Recebido</SelectItem>
                   <SelectItem value="cancelado">Cancelado</SelectItem>

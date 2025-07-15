@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 const ExportInsurance = () => {
   const [showNewInsurance, setShowNewInsurance] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('');
+  const [filterType, setFilterType] = useState('all');
 
   const { data: insurances } = useQuery({
     queryKey: ['export-insurance', searchTerm, filterType],
@@ -29,7 +29,7 @@ const ExportInsurance = () => {
         `)
         .order('policy_start_date', { ascending: false });
 
-      if (filterType && ['transporte', 'credito', 'cargo', 'responsabilidade_civil'].includes(filterType)) {
+      if (filterType && filterType !== 'all' && ['transporte', 'credito', 'cargo', 'responsabilidade_civil'].includes(filterType)) {
         query = query.eq('insurance_type', filterType as 'transporte' | 'credito' | 'cargo' | 'responsabilidade_civil');
       }
 
@@ -264,7 +264,7 @@ const ExportInsurance = () => {
                   <SelectValue placeholder="Todos os tipos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os tipos</SelectItem>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
                   <SelectItem value="transporte">Transporte</SelectItem>
                   <SelectItem value="credito">Crédito</SelectItem>
                   <SelectItem value="cargo">Cargo</SelectItem>

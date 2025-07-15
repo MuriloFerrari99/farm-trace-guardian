@@ -16,7 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 const LetterOfCredit = () => {
   const [showNewLc, setShowNewLc] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
 
   const { data: letterOfCredits } = useQuery({
     queryKey: ['letter-of-credit', searchTerm, filterStatus],
@@ -29,7 +29,7 @@ const LetterOfCredit = () => {
         `)
         .order('issue_date', { ascending: false });
 
-      if (filterStatus && ['emitida', 'confirmada', 'embarcada', 'liberada', 'vencida', 'cancelada'].includes(filterStatus)) {
+      if (filterStatus && filterStatus !== 'all' && ['emitida', 'confirmada', 'embarcada', 'liberada', 'vencida', 'cancelada'].includes(filterStatus)) {
         query = query.eq('status', filterStatus as 'emitida' | 'confirmada' | 'embarcada' | 'liberada' | 'vencida' | 'cancelada');
       }
 
@@ -260,7 +260,7 @@ const LetterOfCredit = () => {
                   <SelectValue placeholder="Todos os status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os status</SelectItem>
+                  <SelectItem value="all">Todos os status</SelectItem>
                   <SelectItem value="emitida">Emitida</SelectItem>
                   <SelectItem value="confirmada">Confirmada</SelectItem>
                   <SelectItem value="embarcada">Embarcada</SelectItem>

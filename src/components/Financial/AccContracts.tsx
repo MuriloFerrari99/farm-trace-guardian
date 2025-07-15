@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 const AccContracts = () => {
   const [showNewAcc, setShowNewAcc] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
 
   const { data: accContracts } = useQuery({
     queryKey: ['acc-contracts', searchTerm, filterStatus],
@@ -29,7 +29,7 @@ const AccContracts = () => {
         `)
         .order('contract_date', { ascending: false });
 
-      if (filterStatus && ['aberto', 'liquidado', 'vencido', 'cancelado'].includes(filterStatus)) {
+      if (filterStatus && filterStatus !== 'all' && ['aberto', 'liquidado', 'vencido', 'cancelado'].includes(filterStatus)) {
         query = query.eq('status', filterStatus as 'aberto' | 'liquidado' | 'vencido' | 'cancelado');
       }
 
@@ -207,7 +207,7 @@ const AccContracts = () => {
                   <SelectValue placeholder="Todos os status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os status</SelectItem>
+                  <SelectItem value="all">Todos os status</SelectItem>
                   <SelectItem value="aberto">Aberto</SelectItem>
                   <SelectItem value="liquidado">Liquidado</SelectItem>
                   <SelectItem value="vencido">Vencido</SelectItem>
