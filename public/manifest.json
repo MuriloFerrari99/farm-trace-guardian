@@ -1,0 +1,25 @@
+
+{
+  "name": "AgroTrace - Sistema de Rastreabilidade GLOBALG.A.P.",
+  "short_name": "AgroTrace",
+  "description": "Sistema completo de gestão e rastreabilidade para trading companies de produtos agrícolas certificados GLOBALG.A.P.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "pt-BR"
+}
