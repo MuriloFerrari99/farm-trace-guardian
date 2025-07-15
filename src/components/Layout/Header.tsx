@@ -1,19 +1,23 @@
 
 import React from 'react';
 import { Bell, User, Settings, LogOut, Globe } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 const Header = () => {
-  const { user, logout } = useAuth();
+  const { user, profile, signOut } = useAuthContext();
   const { language, toggleLanguage, t } = useLanguage();
+
+  const logout = () => {
+    signOut();
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <h2 className="text-lg font-semibold text-gray-900">
-            {t('welcome')}, {user?.name || 'Admin'}
+            {t('welcome')}, {profile?.name || user?.email || 'Admin'}
           </h2>
           <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
             GLOBALG.A.P. {t('certified')}
@@ -38,8 +42,8 @@ const Header = () => {
             <div className="flex items-center space-x-2">
               <User className="h-8 w-8 p-1 bg-gray-100 rounded-full" />
               <div className="text-sm">
-                <p className="font-medium text-gray-900">{user?.name || 'Admin'}</p>
-                <p className="text-gray-500">{user?.role || 'Administrator'}</p>
+                <p className="font-medium text-gray-900">{profile?.name || user?.email || 'Admin'}</p>
+                <p className="text-gray-500">{profile?.role || 'Administrator'}</p>
               </div>
             </div>
             
