@@ -14,6 +14,55 @@ export type Database = {
   }
   public: {
     Tables: {
+      current_lot_positions: {
+        Row: {
+          current_location_id: string
+          entry_date: string | null
+          id: string
+          last_movement_id: string | null
+          reception_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          current_location_id: string
+          entry_date?: string | null
+          id?: string
+          last_movement_id?: string | null
+          reception_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          current_location_id?: string
+          entry_date?: string | null
+          id?: string
+          last_movement_id?: string | null
+          reception_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "current_lot_positions_current_location_id_fkey"
+            columns: ["current_location_id"]
+            isOneToOne: false
+            referencedRelation: "storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "current_lot_positions_last_movement_id_fkey"
+            columns: ["last_movement_id"]
+            isOneToOne: false
+            referencedRelation: "lot_movements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "current_lot_positions_reception_id_fkey"
+            columns: ["reception_id"]
+            isOneToOne: true
+            referencedRelation: "receptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           document_type: string
@@ -192,6 +241,71 @@ export type Database = {
             columns: ["reception_id"]
             isOneToOne: false
             referencedRelation: "receptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lot_movements: {
+        Row: {
+          created_at: string | null
+          from_location_id: string | null
+          id: string
+          moved_by: string | null
+          movement_date: string | null
+          movement_type: string
+          notes: string | null
+          reception_id: string
+          to_location_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          from_location_id?: string | null
+          id?: string
+          moved_by?: string | null
+          movement_date?: string | null
+          movement_type: string
+          notes?: string | null
+          reception_id: string
+          to_location_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          from_location_id?: string | null
+          id?: string
+          moved_by?: string | null
+          movement_date?: string | null
+          movement_type?: string
+          notes?: string | null
+          reception_id?: string
+          to_location_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lot_movements_from_location_id_fkey"
+            columns: ["from_location_id"]
+            isOneToOne: false
+            referencedRelation: "storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lot_movements_moved_by_fkey"
+            columns: ["moved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lot_movements_reception_id_fkey"
+            columns: ["reception_id"]
+            isOneToOne: false
+            referencedRelation: "receptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lot_movements_to_location_id_fkey"
+            columns: ["to_location_id"]
+            isOneToOne: false
+            referencedRelation: "storage_locations"
             referencedColumns: ["id"]
           },
         ]
@@ -435,6 +549,10 @@ export type Database = {
           is_active: boolean | null
           is_certified: boolean | null
           name: string
+          qr_code: string | null
+          temperature_range_max: number | null
+          temperature_range_min: number | null
+          zone_type: string | null
         }
         Insert: {
           area_code: string
@@ -445,6 +563,10 @@ export type Database = {
           is_active?: boolean | null
           is_certified?: boolean | null
           name: string
+          qr_code?: string | null
+          temperature_range_max?: number | null
+          temperature_range_min?: number | null
+          zone_type?: string | null
         }
         Update: {
           area_code?: string
@@ -455,8 +577,123 @@ export type Database = {
           is_active?: boolean | null
           is_certified?: boolean | null
           name?: string
+          qr_code?: string | null
+          temperature_range_max?: number | null
+          temperature_range_min?: number | null
+          zone_type?: string | null
         }
         Relationships: []
+      }
+      storage_checklists: {
+        Row: {
+          additional_notes: string | null
+          checked_by: string | null
+          created_at: string | null
+          id: string
+          location_id: string
+          pallet_integrity: boolean | null
+          photos: Json | null
+          reception_id: string
+          temperature_ambient: number | null
+          third_party_document: string | null
+          visual_separation_confirmed: boolean | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          checked_by?: string | null
+          created_at?: string | null
+          id?: string
+          location_id: string
+          pallet_integrity?: boolean | null
+          photos?: Json | null
+          reception_id: string
+          temperature_ambient?: number | null
+          third_party_document?: string | null
+          visual_separation_confirmed?: boolean | null
+        }
+        Update: {
+          additional_notes?: string | null
+          checked_by?: string | null
+          created_at?: string | null
+          id?: string
+          location_id?: string
+          pallet_integrity?: boolean | null
+          photos?: Json | null
+          reception_id?: string
+          temperature_ambient?: number | null
+          third_party_document?: string | null
+          visual_separation_confirmed?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_checklists_checked_by_fkey"
+            columns: ["checked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storage_checklists_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storage_checklists_reception_id_fkey"
+            columns: ["reception_id"]
+            isOneToOne: false
+            referencedRelation: "receptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      storage_locations: {
+        Row: {
+          area_id: string
+          capacity_units: number | null
+          created_at: string | null
+          current_units: number | null
+          id: string
+          is_occupied: boolean | null
+          location_code: string
+          position_x: number | null
+          position_y: number | null
+          qr_code: string | null
+        }
+        Insert: {
+          area_id: string
+          capacity_units?: number | null
+          created_at?: string | null
+          current_units?: number | null
+          id?: string
+          is_occupied?: boolean | null
+          location_code: string
+          position_x?: number | null
+          position_y?: number | null
+          qr_code?: string | null
+        }
+        Update: {
+          area_id?: string
+          capacity_units?: number | null
+          created_at?: string | null
+          current_units?: number | null
+          id?: string
+          is_occupied?: boolean | null
+          location_code?: string
+          position_x?: number | null
+          position_y?: number | null
+          qr_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_locations_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "storage_areas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
