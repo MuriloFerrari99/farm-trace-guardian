@@ -10,11 +10,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import CostCenterManager from './CostCenterManager';
 
 const AccountsPayable = () => {
   const [showNewPayable, setShowNewPayable] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedCostCenter, setSelectedCostCenter] = useState('');
 
   const { data: payables } = useQuery({
     queryKey: ['accounts-payable', searchTerm, filterStatus],
@@ -149,27 +151,43 @@ const AccountsPayable = () => {
                     Nova Conta
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>Nova Conta a Pagar</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label>Fornecedor</Label>
-                      <Input placeholder="Nome do fornecedor" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Fornecedor</Label>
+                        <Input placeholder="Nome do fornecedor" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Número da Fatura</Label>
+                        <Input placeholder="Ex: NF-2024-001" />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label>Número da Fatura</Label>
-                      <Input placeholder="Ex: NF-2024-001" />
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Valor</Label>
+                        <Input type="number" placeholder="0,00" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Data de Vencimento</Label>
+                        <Input type="date" />
+                      </div>
                     </div>
+
                     <div className="space-y-2">
-                      <Label>Valor</Label>
-                      <Input type="number" placeholder="0,00" />
+                      <Label>Centro de Custo</Label>
+                      <CostCenterManager
+                        value={selectedCostCenter}
+                        onValueChange={setSelectedCostCenter}
+                        placeholder="Selecione o centro de custo"
+                        accountType="despesa"
+                      />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Data de Vencimento</Label>
-                      <Input type="date" />
-                    </div>
+
                     <div className="space-y-2">
                       <Label>Forma de Pagamento</Label>
                       <Select>
@@ -184,6 +202,7 @@ const AccountsPayable = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    
                     <div className="flex gap-2 pt-4">
                       <Button onClick={() => setShowNewPayable(false)} variant="outline" className="flex-1">
                         Cancelar

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { DollarSign, TrendingUp, FileText, CreditCard, Shield, Banknote } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FinancialDashboard from '@/components/Financial/FinancialDashboard';
@@ -11,6 +12,47 @@ import ExportInsurance from '@/components/Financial/ExportInsurance';
 import FinancialReports from '@/components/Financial/FinancialReports';
 
 const Financial = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      const validTabs = ['dashboard', 'dre', 'cash-flow', 'accounts-receivable', 'accounts-payable', 'acc-contracts', 'letter-of-credit', 'export-insurance', 'reports'];
+      const mappedTab = {
+        'accounts-receivable': 'receivable',
+        'accounts-payable': 'payable',
+        'acc-contracts': 'acc',
+        'letter-of-credit': 'lc',
+        'export-insurance': 'insurance'
+      }[tab] || tab;
+      
+      if (validTabs.includes(tab) || Object.keys({
+        'accounts-receivable': 'receivable',
+        'accounts-payable': 'payable',
+        'acc-contracts': 'acc',
+        'letter-of-credit': 'lc',
+        'export-insurance': 'insurance'
+      }).includes(tab)) {
+        setActiveTab(mappedTab);
+      }
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL without page reload
+    const tabMapping = {
+      'receivable': 'accounts-receivable',
+      'payable': 'accounts-payable',
+      'acc': 'acc-contracts',
+      'lc': 'letter-of-credit',
+      'insurance': 'export-insurance'
+    };
+    const urlTab = tabMapping[value as keyof typeof tabMapping] || value;
+    setSearchParams({ tab: urlTab });
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center space-x-3">
@@ -21,11 +63,15 @@ const Financial = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
             Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="dre" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            DRE
           </TabsTrigger>
           <TabsTrigger value="cash-flow" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
@@ -59,6 +105,14 @@ const Financial = () => {
 
         <TabsContent value="dashboard">
           <FinancialDashboard />
+        </TabsContent>
+
+        <TabsContent value="dre">
+          <div className="text-center py-12">
+            <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">DRE - Demonstrativo de Resultados</h3>
+            <p className="text-gray-600">Em desenvolvimento - Relatório de demonstrativo de resultados</p>
+          </div>
         </TabsContent>
 
         <TabsContent value="cash-flow">

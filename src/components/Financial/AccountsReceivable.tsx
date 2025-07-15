@@ -10,11 +10,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import CostCenterManager from './CostCenterManager';
 
 const AccountsReceivable = () => {
   const [showNewReceivable, setShowNewReceivable] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedCostCenter, setSelectedCostCenter] = useState('');
 
   const { data: receivables } = useQuery({
     queryKey: ['accounts-receivable', searchTerm, filterStatus],
@@ -133,27 +135,43 @@ const AccountsReceivable = () => {
                     Nova Fatura
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>Nova Conta a Receber</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label>Número da Fatura</Label>
-                      <Input placeholder="Ex: INV-2024-001" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Número da Fatura</Label>
+                        <Input placeholder="Ex: INV-2024-001" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Cliente</Label>
+                        <Input placeholder="Nome do cliente" />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label>Cliente</Label>
-                      <Input placeholder="Nome do cliente" />
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Valor</Label>
+                        <Input type="number" placeholder="0,00" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Data de Vencimento</Label>
+                        <Input type="date" />
+                      </div>
                     </div>
+
                     <div className="space-y-2">
-                      <Label>Valor</Label>
-                      <Input type="number" placeholder="0,00" />
+                      <Label>Centro de Custo</Label>
+                      <CostCenterManager
+                        value={selectedCostCenter}
+                        onValueChange={setSelectedCostCenter}
+                        placeholder="Selecione o centro de custo"
+                        accountType="receita"
+                      />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Data de Vencimento</Label>
-                      <Input type="date" />
-                    </div>
+
                     <div className="space-y-2">
                       <Label>Moeda</Label>
                       <Select>
@@ -167,6 +185,7 @@ const AccountsReceivable = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    
                     <div className="flex gap-2 pt-4">
                       <Button onClick={() => setShowNewReceivable(false)} variant="outline" className="flex-1">
                         Cancelar

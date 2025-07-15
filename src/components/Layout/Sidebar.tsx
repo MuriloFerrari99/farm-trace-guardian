@@ -43,6 +43,7 @@ const Sidebar = () => {
 
   const financialItems = [
     { path: '/financial', icon: BarChart3Icon, key: 'Dashboard' },
+    { path: '/financial?tab=dre', icon: Calculator, key: 'DRE' },
     { path: '/financial?tab=cash-flow', icon: TrendingUp, key: 'Fluxo de Caixa' },
     { path: '/financial?tab=accounts-receivable', icon: ArrowUpRight, key: 'A Receber' },
     { path: '/financial?tab=accounts-payable', icon: ArrowDownRight, key: 'A Pagar' },
