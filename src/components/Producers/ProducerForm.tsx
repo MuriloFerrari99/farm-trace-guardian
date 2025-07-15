@@ -49,7 +49,10 @@ export const ProducerForm = () => {
 
   const onSubmit = async (data: ProducerFormData) => {
     const producerData: ProducerInsert = {
-      ...data,
+      name: data.name,
+      ggn: data.ggn,
+      certificate_number: data.certificate_number,
+      certificate_expiry: data.certificate_expiry,
       email: data.email || null,
       address: data.address || null,
       phone: data.phone || null,
