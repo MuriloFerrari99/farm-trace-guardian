@@ -198,12 +198,15 @@ export type Database = {
       }
       producers: {
         Row: {
+          additional_notes: string | null
           address: string | null
           certificate_expiry: string
-          certificate_number: string
+          certificate_number: string | null
           created_at: string | null
           email: string | null
-          ggn: string
+          farm_name: string | null
+          fruit_varieties: string | null
+          ggn: string | null
           id: string
           is_active: boolean | null
           name: string
@@ -211,12 +214,15 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          additional_notes?: string | null
           address?: string | null
           certificate_expiry: string
-          certificate_number: string
+          certificate_number?: string | null
           created_at?: string | null
           email?: string | null
-          ggn: string
+          farm_name?: string | null
+          fruit_varieties?: string | null
+          ggn?: string | null
           id?: string
           is_active?: boolean | null
           name: string
@@ -224,12 +230,15 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          additional_notes?: string | null
           address?: string | null
           certificate_expiry?: string
-          certificate_number?: string
+          certificate_number?: string | null
           created_at?: string | null
           email?: string | null
-          ggn?: string
+          farm_name?: string | null
+          fruit_varieties?: string | null
+          ggn?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
