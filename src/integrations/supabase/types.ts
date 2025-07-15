@@ -14,6 +14,438 @@ export type Database = {
   }
   public: {
     Tables: {
+      acc_contracts: {
+        Row: {
+          advance_amount_usd: number | null
+          advance_percentage: number | null
+          amount_brl: number | null
+          amount_usd: number
+          bank_code: string | null
+          bank_name: string
+          contract_date: string
+          contract_number: string
+          created_at: string | null
+          created_by: string | null
+          exchange_rate: number
+          expedition_id: string | null
+          id: string
+          interest_rate: number
+          iof_rate: number | null
+          liquidation_date: string | null
+          liquidation_rate: number | null
+          maturity_date: string
+          notes: string | null
+          producer_id: string | null
+          status: Database["public"]["Enums"]["acc_status"] | null
+          total_cost: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          advance_amount_usd?: number | null
+          advance_percentage?: number | null
+          amount_brl?: number | null
+          amount_usd: number
+          bank_code?: string | null
+          bank_name: string
+          contract_date: string
+          contract_number: string
+          created_at?: string | null
+          created_by?: string | null
+          exchange_rate: number
+          expedition_id?: string | null
+          id?: string
+          interest_rate: number
+          iof_rate?: number | null
+          liquidation_date?: string | null
+          liquidation_rate?: number | null
+          maturity_date: string
+          notes?: string | null
+          producer_id?: string | null
+          status?: Database["public"]["Enums"]["acc_status"] | null
+          total_cost?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          advance_amount_usd?: number | null
+          advance_percentage?: number | null
+          amount_brl?: number | null
+          amount_usd?: number
+          bank_code?: string | null
+          bank_name?: string
+          contract_date?: string
+          contract_number?: string
+          created_at?: string | null
+          created_by?: string | null
+          exchange_rate?: number
+          expedition_id?: string | null
+          id?: string
+          interest_rate?: number
+          iof_rate?: number | null
+          liquidation_date?: string | null
+          liquidation_rate?: number | null
+          maturity_date?: string
+          notes?: string | null
+          producer_id?: string | null
+          status?: Database["public"]["Enums"]["acc_status"] | null
+          total_cost?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acc_contracts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acc_contracts_expedition_id_fkey"
+            columns: ["expedition_id"]
+            isOneToOne: false
+            referencedRelation: "expeditions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acc_contracts_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accounts_payable: {
+        Row: {
+          account_id: string | null
+          amount: number
+          amount_brl: number | null
+          amount_paid: number | null
+          created_at: string | null
+          created_by: string | null
+          currency: Database["public"]["Enums"]["currency_code"] | null
+          discount_amount: number | null
+          due_date: string
+          exchange_rate: number | null
+          id: string
+          interest_amount: number | null
+          invoice_number: string | null
+          issue_date: string
+          notes: string | null
+          payment_date: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          producer_id: string | null
+          reception_id: string | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          supplier_document: string | null
+          supplier_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          amount_brl?: number | null
+          amount_paid?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          discount_amount?: number | null
+          due_date: string
+          exchange_rate?: number | null
+          id?: string
+          interest_amount?: number | null
+          invoice_number?: string | null
+          issue_date: string
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          producer_id?: string | null
+          reception_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          supplier_document?: string | null
+          supplier_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          amount_brl?: number | null
+          amount_paid?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          discount_amount?: number | null
+          due_date?: string
+          exchange_rate?: number | null
+          id?: string
+          interest_amount?: number | null
+          invoice_number?: string | null
+          issue_date?: string
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          producer_id?: string | null
+          reception_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          supplier_document?: string | null
+          supplier_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_payable_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounts_payable_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounts_payable_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounts_payable_reception_id_fkey"
+            columns: ["reception_id"]
+            isOneToOne: false
+            referencedRelation: "receptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accounts_receivable: {
+        Row: {
+          acc_id: string | null
+          amount: number
+          amount_brl: number | null
+          amount_paid: number | null
+          client_document: string | null
+          client_name: string
+          created_at: string | null
+          created_by: string | null
+          currency: Database["public"]["Enums"]["currency_code"] | null
+          discount_amount: number | null
+          due_date: string
+          exchange_rate: number | null
+          expedition_id: string | null
+          id: string
+          interest_amount: number | null
+          invoice_number: string
+          issue_date: string
+          lc_id: string | null
+          notes: string | null
+          payment_date: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          acc_id?: string | null
+          amount: number
+          amount_brl?: number | null
+          amount_paid?: number | null
+          client_document?: string | null
+          client_name: string
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          discount_amount?: number | null
+          due_date: string
+          exchange_rate?: number | null
+          expedition_id?: string | null
+          id?: string
+          interest_amount?: number | null
+          invoice_number: string
+          issue_date: string
+          lc_id?: string | null
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          acc_id?: string | null
+          amount?: number
+          amount_brl?: number | null
+          amount_paid?: number | null
+          client_document?: string | null
+          client_name?: string
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          discount_amount?: number | null
+          due_date?: string
+          exchange_rate?: number | null
+          expedition_id?: string | null
+          id?: string
+          interest_amount?: number | null
+          invoice_number?: string
+          issue_date?: string
+          lc_id?: string | null
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_receivable_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounts_receivable_expedition_id_fkey"
+            columns: ["expedition_id"]
+            isOneToOne: false
+            referencedRelation: "expeditions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_accounts_receivable_acc"
+            columns: ["acc_id"]
+            isOneToOne: false
+            referencedRelation: "acc_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_accounts_receivable_lc"
+            columns: ["lc_id"]
+            isOneToOne: false
+            referencedRelation: "letter_of_credit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cash_flow: {
+        Row: {
+          amount: number
+          amount_brl: number | null
+          bank_account: string | null
+          client_id: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: Database["public"]["Enums"]["currency_code"] | null
+          description: string
+          exchange_rate: number | null
+          flow_date: string
+          flow_type: Database["public"]["Enums"]["cash_flow_type"]
+          id: string
+          notes: string | null
+          origin: Database["public"]["Enums"]["cash_flow_origin"]
+          reference_id: string | null
+          reference_type: string | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          amount_brl?: number | null
+          bank_account?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          description: string
+          exchange_rate?: number | null
+          flow_date: string
+          flow_type: Database["public"]["Enums"]["cash_flow_type"]
+          id?: string
+          notes?: string | null
+          origin: Database["public"]["Enums"]["cash_flow_origin"]
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          amount_brl?: number | null
+          bank_account?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          description?: string
+          exchange_rate?: number | null
+          flow_date?: string
+          flow_type?: Database["public"]["Enums"]["cash_flow_type"]
+          id?: string
+          notes?: string | null
+          origin?: Database["public"]["Enums"]["cash_flow_origin"]
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_flow_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chart_of_accounts: {
+        Row: {
+          account_code: string
+          account_name: string
+          account_type: Database["public"]["Enums"]["account_type"]
+          cost_center: Database["public"]["Enums"]["cost_center_type"]
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          parent_account_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_code: string
+          account_name: string
+          account_type: Database["public"]["Enums"]["account_type"]
+          cost_center?: Database["public"]["Enums"]["cost_center_type"]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_account_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_code?: string
+          account_name?: string
+          account_type?: Database["public"]["Enums"]["account_type"]
+          cost_center?: Database["public"]["Enums"]["cost_center_type"]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_account_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chart_of_accounts_parent_account_id_fkey"
+            columns: ["parent_account_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consolidated_lot_items: {
         Row: {
           consolidated_lot_id: string
@@ -347,6 +779,225 @@ export type Database = {
           },
         ]
       }
+      export_insurance: {
+        Row: {
+          bill_of_lading: string | null
+          cargo_description: string | null
+          claim_amount: number | null
+          claim_date: string | null
+          claim_status: string | null
+          coverage_amount: number
+          created_at: string | null
+          created_by: string | null
+          currency: Database["public"]["Enums"]["currency_code"] | null
+          deductible_amount: number | null
+          expedition_id: string | null
+          id: string
+          insurance_company: string
+          insurance_type: Database["public"]["Enums"]["insurance_type"]
+          lc_id: string | null
+          notes: string | null
+          policy_end_date: string
+          policy_number: string
+          policy_start_date: string
+          premium_amount: number
+          route_destination: string | null
+          route_origin: string | null
+          updated_at: string | null
+          vessel_name: string | null
+        }
+        Insert: {
+          bill_of_lading?: string | null
+          cargo_description?: string | null
+          claim_amount?: number | null
+          claim_date?: string | null
+          claim_status?: string | null
+          coverage_amount: number
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          deductible_amount?: number | null
+          expedition_id?: string | null
+          id?: string
+          insurance_company: string
+          insurance_type: Database["public"]["Enums"]["insurance_type"]
+          lc_id?: string | null
+          notes?: string | null
+          policy_end_date: string
+          policy_number: string
+          policy_start_date: string
+          premium_amount: number
+          route_destination?: string | null
+          route_origin?: string | null
+          updated_at?: string | null
+          vessel_name?: string | null
+        }
+        Update: {
+          bill_of_lading?: string | null
+          cargo_description?: string | null
+          claim_amount?: number | null
+          claim_date?: string | null
+          claim_status?: string | null
+          coverage_amount?: number
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          deductible_amount?: number | null
+          expedition_id?: string | null
+          id?: string
+          insurance_company?: string
+          insurance_type?: Database["public"]["Enums"]["insurance_type"]
+          lc_id?: string | null
+          notes?: string | null
+          policy_end_date?: string
+          policy_number?: string
+          policy_start_date?: string
+          premium_amount?: number
+          route_destination?: string | null
+          route_origin?: string | null
+          updated_at?: string | null
+          vessel_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "export_insurance_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "export_insurance_expedition_id_fkey"
+            columns: ["expedition_id"]
+            isOneToOne: false
+            referencedRelation: "expeditions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "export_insurance_lc_id_fkey"
+            columns: ["lc_id"]
+            isOneToOne: false
+            referencedRelation: "letter_of_credit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_documents: {
+        Row: {
+          document_number: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          reference_id: string
+          reference_type: string
+          uploaded_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          document_number?: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          reference_id: string
+          reference_type: string
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          document_number?: string | null
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          reference_id?: string
+          reference_type?: string
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_transactions: {
+        Row: {
+          account_id: string
+          amount: number
+          amount_brl: number | null
+          cost_center: Database["public"]["Enums"]["cost_center_type"]
+          created_at: string | null
+          created_by: string | null
+          currency: Database["public"]["Enums"]["currency_code"] | null
+          description: string
+          exchange_rate: number | null
+          id: string
+          reference_document: string | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          amount_brl?: number | null
+          cost_center: Database["public"]["Enums"]["cost_center_type"]
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          description: string
+          exchange_rate?: number | null
+          id?: string
+          reference_document?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          amount_brl?: number | null
+          cost_center?: Database["public"]["Enums"]["cost_center_type"]
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          description?: string
+          exchange_rate?: number | null
+          id?: string
+          reference_document?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_date?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_transactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_labels: {
         Row: {
           client_customization: Json | null
@@ -442,6 +1093,114 @@ export type Database = {
             columns: ["reception_id"]
             isOneToOne: false
             referencedRelation: "receptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      letter_of_credit: {
+        Row: {
+          amount: number
+          applicant: string
+          beneficiary: string
+          confirmation_date: string | null
+          confirming_bank: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: Database["public"]["Enums"]["currency_code"] | null
+          description_of_goods: string | null
+          discrepancies: string | null
+          expedition_id: string | null
+          expiry_date: string
+          id: string
+          issue_date: string
+          issuing_bank: string
+          latest_shipment_date: string | null
+          lc_number: string
+          negotiation_date: string | null
+          notes: string | null
+          partial_shipment: boolean | null
+          payment_terms: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
+          presentation_date: string | null
+          shipment_date: string | null
+          status: Database["public"]["Enums"]["lc_status"] | null
+          transshipment: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          applicant: string
+          beneficiary: string
+          confirmation_date?: string | null
+          confirming_bank?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          description_of_goods?: string | null
+          discrepancies?: string | null
+          expedition_id?: string | null
+          expiry_date: string
+          id?: string
+          issue_date: string
+          issuing_bank: string
+          latest_shipment_date?: string | null
+          lc_number: string
+          negotiation_date?: string | null
+          notes?: string | null
+          partial_shipment?: boolean | null
+          payment_terms?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
+          presentation_date?: string | null
+          shipment_date?: string | null
+          status?: Database["public"]["Enums"]["lc_status"] | null
+          transshipment?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          applicant?: string
+          beneficiary?: string
+          confirmation_date?: string | null
+          confirming_bank?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          description_of_goods?: string | null
+          discrepancies?: string | null
+          expedition_id?: string | null
+          expiry_date?: string
+          id?: string
+          issue_date?: string
+          issuing_bank?: string
+          latest_shipment_date?: string | null
+          lc_number?: string
+          negotiation_date?: string | null
+          notes?: string | null
+          partial_shipment?: boolean | null
+          payment_terms?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
+          presentation_date?: string | null
+          shipment_date?: string | null
+          status?: Database["public"]["Enums"]["lc_status"] | null
+          transshipment?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "letter_of_credit_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "letter_of_credit_expedition_id_fkey"
+            columns: ["expedition_id"]
+            isOneToOne: false
+            referencedRelation: "expeditions"
             referencedColumns: ["id"]
           },
         ]
@@ -904,9 +1663,52 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      acc_status: "aberto" | "liquidado" | "vencido" | "cancelado"
+      account_type:
+        | "receita"
+        | "custo"
+        | "despesa"
+        | "ativo"
+        | "passivo"
+        | "patrimonio"
+      cash_flow_origin:
+        | "vendas"
+        | "acc"
+        | "lc"
+        | "emprestimo"
+        | "capital"
+        | "outros"
+      cash_flow_type: "entrada" | "saida"
+      cost_center_type:
+        | "producao"
+        | "comercial"
+        | "administrativo"
+        | "financeiro"
+        | "exportacao"
+      currency_code: "BRL" | "USD" | "EUR" | "ARS" | "CNY"
+      insurance_type:
+        | "transporte"
+        | "credito"
+        | "cargo"
+        | "responsabilidade_civil"
+      lc_status:
+        | "emitida"
+        | "confirmada"
+        | "embarcada"
+        | "liberada"
+        | "vencida"
+        | "cancelada"
       movement_type: "entrada" | "saida" | "transferencia" | "consolidacao"
+      payment_method:
+        | "boleto"
+        | "transferencia"
+        | "cheque"
+        | "cartao"
+        | "pix"
+        | "swift"
       product_type: "tomate" | "alface" | "pepino" | "pimentao" | "outros"
       reception_status: "pending" | "approved" | "rejected"
+      transaction_status: "previsto" | "realizado" | "cancelado"
       user_role: "admin" | "operator" | "supervisor"
     }
     CompositeTypes: {
@@ -1035,9 +1837,58 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      acc_status: ["aberto", "liquidado", "vencido", "cancelado"],
+      account_type: [
+        "receita",
+        "custo",
+        "despesa",
+        "ativo",
+        "passivo",
+        "patrimonio",
+      ],
+      cash_flow_origin: [
+        "vendas",
+        "acc",
+        "lc",
+        "emprestimo",
+        "capital",
+        "outros",
+      ],
+      cash_flow_type: ["entrada", "saida"],
+      cost_center_type: [
+        "producao",
+        "comercial",
+        "administrativo",
+        "financeiro",
+        "exportacao",
+      ],
+      currency_code: ["BRL", "USD", "EUR", "ARS", "CNY"],
+      insurance_type: [
+        "transporte",
+        "credito",
+        "cargo",
+        "responsabilidade_civil",
+      ],
+      lc_status: [
+        "emitida",
+        "confirmada",
+        "embarcada",
+        "liberada",
+        "vencida",
+        "cancelada",
+      ],
       movement_type: ["entrada", "saida", "transferencia", "consolidacao"],
+      payment_method: [
+        "boleto",
+        "transferencia",
+        "cheque",
+        "cartao",
+        "pix",
+        "swift",
+      ],
       product_type: ["tomate", "alface", "pepino", "pimentao", "outros"],
       reception_status: ["pending", "approved", "rejected"],
+      transaction_status: ["previsto", "realizado", "cancelado"],
       user_role: ["admin", "operator", "supervisor"],
     },
   },
