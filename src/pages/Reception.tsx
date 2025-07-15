@@ -1,32 +1,25 @@
 
 import React, { useState } from 'react';
 import { Upload, Plus, Search, Filter, FileText, CheckCircle } from 'lucide-react';
+import { useReceptions } from '../hooks/useReceptions';
+import { useProducers } from '../hooks/useProducers';
+import { useAuth } from '../hooks/useAuth';
+import { Database } from '@/integrations/supabase/types';
 
 const Reception = () => {
-  const [receptions, setReceptions] = useState([
-    {
-      id: 'REC001',
-      producer: 'João Silva',
-      ggn: '4056874123456',
-      product: 'Tomate',
-      quantity: '1500kg',
-      date: '2024-01-15',
-      status: 'pending',
-      documents: ['nota_fiscal.pdf', 'packing_list.pdf', 'certificado.pdf']
-    },
-    {
-      id: 'REC002',
-      producer: 'Maria Santos',
-      ggn: '4056874789012',
-      product: 'Alface',
-      quantity: '800kg',
-      date: '2024-01-14',
-      status: 'approved',
-      documents: ['nota_fiscal.pdf', 'packing_list.pdf', 'certificado.pdf']
-    }
-  ]);
-
+  const { receptions, isLoading, createReception } = useReceptions();
+  const { producers } = useProducers();
+  const { user } = useAuth();
   const [showNewReceptionForm, setShowNewReceptionForm] = useState(false);
+  const [formData, setFormData] = useState({
+    producer_id: '',
+    product_type: 'tomate' as Database['public']['Enums']['product_type'],
+    quantity_kg: '',
+    reception_date: new Date().toISOString().split('T')[0],
+    lot_number: '',
+    harvest_date: '',
+    notes: '',
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -45,6 +38,61 @@ const Reception = () => {
       default: return 'Desconhecido';
     }
   };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const generateReceptionCode = () => {
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2);
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `REC${year}${month}${day}${random}`;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const receptionData = {
+      reception_code: generateReceptionCode(),
+      producer_id: formData.producer_id,
+      product_type: formData.product_type,
+      quantity_kg: parseFloat(formData.quantity_kg),
+      reception_date: formData.reception_date,
+      lot_number: formData.lot_number || null,
+      harvest_date: formData.harvest_date || null,
+      notes: formData.notes || null,
+      received_by: user?.id || null,
+    };
+
+    createReception.mutate(receptionData, {
+      onSuccess: () => {
+        setShowNewReceptionForm(false);
+        setFormData({
+          producer_id: '',
+          product_type: 'tomate',
+          quantity_kg: '',
+          reception_date: new Date().toISOString().split('T')[0],
+          lot_number: '',
+          harvest_date: '',
+          notes: '',
+        });
+      },
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -92,48 +140,41 @@ const Reception = () => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produtor</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GGN</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documentos</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {receptions.map((reception) => (
+              {receptions?.map((reception) => (
                 <tr key={reception.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {reception.id}
+                    {reception.reception_code}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {reception.producer}
+                    {reception.producer?.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                    {reception.ggn}
+                    {reception.producer?.ggn}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                    {reception.product_type}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {reception.product}
+                    {reception.quantity_kg}kg
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {reception.quantity}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(reception.date).toLocaleDateString('pt-BR')}
+                    {new Date(reception.reception_date).toLocaleDateString('pt-BR')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(reception.status)}`}>
-                      {getStatusText(reception.status)}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(reception.status || 'pending')}`}>
+                      {getStatusText(reception.status || 'pending')}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{reception.documents.length} docs</span>
-                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button className="text-green-600 hover:text-green-900 mr-3">Ver</button>
@@ -154,16 +195,25 @@ const Reception = () => {
               <h2 className="text-xl font-bold text-gray-900">Novo Recebimento</h2>
             </div>
             
-            <div className="p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Produtor
                   </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                  <select
+                    name="producer_id"
+                    value={formData.producer_id}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  >
                     <option value="">Selecionar produtor...</option>
-                    <option value="joao">João Silva (GGN: 4056874123456)</option>
-                    <option value="maria">Maria Santos (GGN: 4056874789012)</option>
+                    {producers?.map((producer) => (
+                      <option key={producer.id} value={producer.id}>
+                        {producer.name} (GGN: {producer.ggn})
+                      </option>
+                    ))}
                   </select>
                 </div>
                 
@@ -171,21 +221,33 @@ const Reception = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Produto
                   </label>
-                  <input
-                    type="text"
+                  <select
+                    name="product_type"
+                    value={formData.product_type}
+                    onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Ex: Tomate, Alface, etc."
-                  />
+                    required
+                  >
+                    <option value="tomate">Tomate</option>
+                    <option value="alface">Alface</option>
+                    <option value="pepino">Pepino</option>
+                    <option value="pimentao">Pimentão</option>
+                    <option value="outros">Outros</option>
+                  </select>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quantidade
+                    Quantidade (kg)
                   </label>
                   <input
-                    type="text"
+                    type="number"
+                    name="quantity_kg"
+                    value={formData.quantity_kg}
+                    onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Ex: 1500kg"
+                    placeholder="Ex: 1500"
+                    required
                   />
                 </div>
                 
@@ -195,9 +257,54 @@ const Reception = () => {
                   </label>
                   <input
                     type="date"
+                    name="reception_date"
+                    value={formData.reception_date}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Número do Lote (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    name="lot_number"
+                    value={formData.lot_number}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Ex: LOTE001"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Data da Colheita (Opcional)
+                  </label>
+                  <input
+                    type="date"
+                    name="harvest_date"
+                    value={formData.harvest_date}
+                    onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Observações (Opcional)
+                </label>
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Observações adicionais sobre o recebimento..."
+                />
               </div>
               
               <div>
@@ -212,22 +319,31 @@ const Reception = () => {
                   <p className="text-xs text-gray-500">
                     Documentos necessários: Nota Fiscal, Packing List, Certificado GLOBALG.A.P.
                   </p>
-                  <button className="mt-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                  <button type="button" className="mt-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                     Selecionar Arquivos
                   </button>
                 </div>
               </div>
-            </div>
+            </form>
             
             <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
               <button
+                type="button"
                 onClick={() => setShowNewReceptionForm(false)}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancelar
               </button>
-              <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                Registrar Recebimento
+              <button
+                onClick={handleSubmit}
+                disabled={createReception.isPending}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 transition-colors flex items-center space-x-2"
+              >
+                {createReception.isPending ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                ) : (
+                  <span>Registrar Recebimento</span>
+                )}
               </button>
             </div>
           </div>
