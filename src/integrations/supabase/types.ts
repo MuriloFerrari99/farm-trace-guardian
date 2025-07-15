@@ -14,6 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
+      consolidated_lot_items: {
+        Row: {
+          consolidated_lot_id: string
+          created_at: string | null
+          id: string
+          original_reception_id: string
+          quantity_used_kg: number
+        }
+        Insert: {
+          consolidated_lot_id: string
+          created_at?: string | null
+          id?: string
+          original_reception_id: string
+          quantity_used_kg: number
+        }
+        Update: {
+          consolidated_lot_id?: string
+          created_at?: string | null
+          id?: string
+          original_reception_id?: string
+          quantity_used_kg?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consolidated_lot_items_consolidated_lot_id_fkey"
+            columns: ["consolidated_lot_id"]
+            isOneToOne: false
+            referencedRelation: "consolidated_lots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consolidated_lot_items_original_reception_id_fkey"
+            columns: ["original_reception_id"]
+            isOneToOne: false
+            referencedRelation: "receptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consolidated_lots: {
+        Row: {
+          client_lot_number: string | null
+          client_name: string | null
+          consolidated_by: string | null
+          consolidation_code: string
+          consolidation_date: string | null
+          created_at: string | null
+          id: string
+          internal_lot_number: string | null
+          notes: string | null
+          product_type: string
+          status: string | null
+          total_quantity_kg: number
+        }
+        Insert: {
+          client_lot_number?: string | null
+          client_name?: string | null
+          consolidated_by?: string | null
+          consolidation_code: string
+          consolidation_date?: string | null
+          created_at?: string | null
+          id?: string
+          internal_lot_number?: string | null
+          notes?: string | null
+          product_type: string
+          status?: string | null
+          total_quantity_kg: number
+        }
+        Update: {
+          client_lot_number?: string | null
+          client_name?: string | null
+          consolidated_by?: string | null
+          consolidation_code?: string
+          consolidation_date?: string | null
+          created_at?: string | null
+          id?: string
+          internal_lot_number?: string | null
+          notes?: string | null
+          product_type?: string
+          status?: string | null
+          total_quantity_kg?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consolidated_lots_consolidated_by_fkey"
+            columns: ["consolidated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consolidation_documents: {
+        Row: {
+          consolidated_lot_id: string
+          document_type: string
+          file_name: string
+          file_path: string
+          id: string
+          producer_id: string | null
+          uploaded_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          consolidated_lot_id: string
+          document_type: string
+          file_name: string
+          file_path: string
+          id?: string
+          producer_id?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          consolidated_lot_id?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          producer_id?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consolidation_documents_consolidated_lot_id_fkey"
+            columns: ["consolidated_lot_id"]
+            isOneToOne: false
+            referencedRelation: "consolidated_lots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consolidation_documents_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consolidation_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       current_lot_positions: {
         Row: {
           current_location_id: string
@@ -194,6 +341,60 @@ export type Database = {
           {
             foreignKeyName: "expeditions_executed_by_fkey"
             columns: ["executed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generated_labels: {
+        Row: {
+          client_customization: Json | null
+          consolidated_lot_id: string
+          generated_at: string | null
+          generated_by: string | null
+          id: string
+          label_layout: string
+          language: string | null
+          pdf_file_path: string | null
+          qr_code_data: string
+          status: string | null
+        }
+        Insert: {
+          client_customization?: Json | null
+          consolidated_lot_id: string
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          label_layout: string
+          language?: string | null
+          pdf_file_path?: string | null
+          qr_code_data: string
+          status?: string | null
+        }
+        Update: {
+          client_customization?: Json | null
+          consolidated_lot_id?: string
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          label_layout?: string
+          language?: string | null
+          pdf_file_path?: string | null
+          qr_code_data?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_labels_consolidated_lot_id_fkey"
+            columns: ["consolidated_lot_id"]
+            isOneToOne: false
+            referencedRelation: "consolidated_lots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_labels_generated_by_fkey"
+            columns: ["generated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
