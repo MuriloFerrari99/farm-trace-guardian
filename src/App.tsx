@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -15,7 +16,7 @@ import Producers from './pages/Producers';
 
 const queryClient = new QueryClient();
 
-const AppContent = () => {
+const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuthContext();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -78,7 +79,7 @@ const AppContent = () => {
   );
 };
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
