@@ -10,6 +10,7 @@ import Sidebar from './components/Layout/Sidebar';
 import Header from './components/Layout/Header';
 import Dashboard from './pages/Dashboard';
 import Reception from './pages/Reception';
+import Identification from './pages/Identification';
 
 const queryClient = new QueryClient();
 
@@ -61,7 +62,7 @@ const AppContent = () => {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/reception" element={<Reception />} />
-              <Route path="/identification" element={<div className="p-6"><h1 className="text-2xl font-bold">Módulo de Identificação</h1><p className="text-gray-600 mt-2">Em desenvolvimento...</p></div>} />
+              <Route path="/identification" element={<Identification />} />
               <Route path="/storage" element={<div className="p-6"><h1 className="text-2xl font-bold">Módulo de Armazenamento</h1><p className="text-gray-600 mt-2">Em desenvolvimento...</p></div>} />
               <Route path="/consolidation" element={<div className="p-6"><h1 className="text-2xl font-bold">Módulo de Consolidação</h1><p className="text-gray-600 mt-2">Em desenvolvimento...</p></div>} />
               <Route path="/expedition" element={<div className="p-6"><h1 className="text-2xl font-bold">Módulo de Expedição</h1><p className="text-gray-600 mt-2">Em desenvolvimento...</p></div>} />
