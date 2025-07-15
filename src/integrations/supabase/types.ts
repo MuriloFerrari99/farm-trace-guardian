@@ -593,6 +593,275 @@ export type Database = {
           },
         ]
       }
+      crm_contacts: {
+        Row: {
+          assigned_to: string | null
+          city: string | null
+          company_name: string
+          contact_name: string
+          country: string | null
+          created_at: string
+          created_by: string | null
+          email: string
+          general_notes: string | null
+          id: string
+          phone: string | null
+          segment: Database["public"]["Enums"]["business_segment"]
+          state: string | null
+          status: Database["public"]["Enums"]["contact_status"]
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          city?: string | null
+          company_name: string
+          contact_name: string
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          email: string
+          general_notes?: string | null
+          id?: string
+          phone?: string | null
+          segment?: Database["public"]["Enums"]["business_segment"]
+          state?: string | null
+          status?: Database["public"]["Enums"]["contact_status"]
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          city?: string | null
+          company_name?: string
+          contact_name?: string
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          general_notes?: string | null
+          id?: string
+          phone?: string | null
+          segment?: Database["public"]["Enums"]["business_segment"]
+          state?: string | null
+          status?: Database["public"]["Enums"]["contact_status"]
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_contacts_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_contacts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_documents: {
+        Row: {
+          contact_id: string | null
+          description: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          opportunity_id: string | null
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          contact_id?: string | null
+          description?: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          opportunity_id?: string | null
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          contact_id?: string | null
+          description?: string | null
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          opportunity_id?: string | null
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_documents_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_documents_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_interactions: {
+        Row: {
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          feedback: string
+          id: string
+          interaction_date: string
+          interaction_type: Database["public"]["Enums"]["interaction_type"]
+          next_action_date: string | null
+          next_action_description: string | null
+          result: Database["public"]["Enums"]["interaction_result"] | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          feedback: string
+          id?: string
+          interaction_date?: string
+          interaction_type: Database["public"]["Enums"]["interaction_type"]
+          next_action_date?: string | null
+          next_action_description?: string | null
+          result?: Database["public"]["Enums"]["interaction_result"] | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          feedback?: string
+          id?: string
+          interaction_date?: string
+          interaction_type?: Database["public"]["Enums"]["interaction_type"]
+          next_action_date?: string | null
+          next_action_description?: string | null
+          result?: Database["public"]["Enums"]["interaction_result"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_interactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_interactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_opportunities: {
+        Row: {
+          actual_close_date: string | null
+          assigned_to: string | null
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          estimated_value: number | null
+          expected_close_date: string | null
+          id: string
+          lost_reason: string | null
+          probability: number | null
+          product_interest: string | null
+          stage: Database["public"]["Enums"]["funnel_stage"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          actual_close_date?: string | null
+          assigned_to?: string | null
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          estimated_value?: number | null
+          expected_close_date?: string | null
+          id?: string
+          lost_reason?: string | null
+          probability?: number | null
+          product_interest?: string | null
+          stage?: Database["public"]["Enums"]["funnel_stage"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          actual_close_date?: string | null
+          assigned_to?: string | null
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          estimated_value?: number | null
+          expected_close_date?: string | null
+          id?: string
+          lost_reason?: string | null
+          probability?: number | null
+          product_interest?: string | null
+          stage?: Database["public"]["Enums"]["funnel_stage"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_opportunities_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_opportunities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_opportunities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       current_lot_positions: {
         Row: {
           current_location_id: string
@@ -1671,6 +1940,13 @@ export type Database = {
         | "ativo"
         | "passivo"
         | "patrimonio"
+      business_segment:
+        | "importador"
+        | "distribuidor"
+        | "varejo"
+        | "atacado"
+        | "industria"
+        | "outros"
       cash_flow_origin:
         | "vendas"
         | "acc"
@@ -1679,6 +1955,7 @@ export type Database = {
         | "capital"
         | "outros"
       cash_flow_type: "entrada" | "saida"
+      contact_status: "ativo" | "desqualificado" | "em_negociacao"
       cost_center_type:
         | "producao"
         | "comercial"
@@ -1686,11 +1963,32 @@ export type Database = {
         | "financeiro"
         | "exportacao"
       currency_code: "BRL" | "USD" | "EUR" | "ARS" | "CNY"
+      funnel_stage:
+        | "contato_inicial"
+        | "qualificado"
+        | "proposta_enviada"
+        | "negociacao"
+        | "fechado_ganhou"
+        | "fechado_perdeu"
       insurance_type:
         | "transporte"
         | "credito"
         | "cargo"
         | "responsabilidade_civil"
+      interaction_result:
+        | "sucesso"
+        | "follow_up"
+        | "sem_interesse"
+        | "proposta_enviada"
+        | "agendamento"
+        | "outros"
+      interaction_type:
+        | "ligacao"
+        | "reuniao"
+        | "email"
+        | "whatsapp"
+        | "visita"
+        | "outros"
       lc_status:
         | "emitida"
         | "confirmada"
@@ -1846,6 +2144,14 @@ export const Constants = {
         "passivo",
         "patrimonio",
       ],
+      business_segment: [
+        "importador",
+        "distribuidor",
+        "varejo",
+        "atacado",
+        "industria",
+        "outros",
+      ],
       cash_flow_origin: [
         "vendas",
         "acc",
@@ -1855,6 +2161,7 @@ export const Constants = {
         "outros",
       ],
       cash_flow_type: ["entrada", "saida"],
+      contact_status: ["ativo", "desqualificado", "em_negociacao"],
       cost_center_type: [
         "producao",
         "comercial",
@@ -1863,11 +2170,35 @@ export const Constants = {
         "exportacao",
       ],
       currency_code: ["BRL", "USD", "EUR", "ARS", "CNY"],
+      funnel_stage: [
+        "contato_inicial",
+        "qualificado",
+        "proposta_enviada",
+        "negociacao",
+        "fechado_ganhou",
+        "fechado_perdeu",
+      ],
       insurance_type: [
         "transporte",
         "credito",
         "cargo",
         "responsabilidade_civil",
+      ],
+      interaction_result: [
+        "sucesso",
+        "follow_up",
+        "sem_interesse",
+        "proposta_enviada",
+        "agendamento",
+        "outros",
+      ],
+      interaction_type: [
+        "ligacao",
+        "reuniao",
+        "email",
+        "whatsapp",
+        "visita",
+        "outros",
       ],
       lc_status: [
         "emitida",

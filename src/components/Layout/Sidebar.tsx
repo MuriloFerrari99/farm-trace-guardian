@@ -54,6 +54,7 @@ const Sidebar = () => {
   ];
 
   const otherMenuItems = [
+    { path: '/crm', icon: Users, key: 'CRM' },
     { path: '/reports', icon: FileTextIcon, key: 'reports' },
     { path: '/producers', icon: Users, key: 'producers' },
     { path: '/compliance', icon: Shield, key: 'compliance' },

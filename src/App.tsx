@@ -18,6 +18,7 @@ import Producers from './pages/Producers';
 import Expedition from './pages/Expedition';
 import Reports from './pages/Reports';
 import Financial from './pages/Financial';
+import CRM from './pages/CRM';
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ const AppContent: React.FC = () => {
               <Route path="/consolidation" element={<Consolidation />} />
               <Route path="/expedition" element={<Expedition />} />
               <Route path="/financial" element={<Financial />} />
+              <Route path="/crm" element={<CRM />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/producers" element={<Producers />} />
             <Route path="/compliance" element={<div className="p-6"><h1 className="text-2xl font-bold">Módulo de Conformidade</h1><p className="text-gray-600 mt-2">Em desenvolvimento...</p></div>} />
