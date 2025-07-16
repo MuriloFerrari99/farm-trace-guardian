@@ -84,11 +84,31 @@ export const useLabels = () => {
     },
   });
 
+  const deleteLabel = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('labels')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['labels'] });
+      toast.success('Etiqueta deletada com sucesso!');
+    },
+    onError: (error) => {
+      console.error('Error deleting label:', error);
+      toast.error('Erro ao deletar etiqueta');
+    },
+  });
+
   return {
     labels,
     isLoading,
     error,
     createLabel,
     updateLabel,
+    deleteLabel,
   };
 };

@@ -130,6 +130,25 @@ export const useReceptions = () => {
     },
   });
 
+  const deleteReception = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('receptions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receptions'] });
+      toast.success('Recebimento deletado com sucesso!');
+    },
+    onError: (error) => {
+      console.error('Error deleting reception:', error);
+      toast.error('Erro ao deletar recebimento');
+    },
+  });
+
   return {
     receptions,
     isLoading,
@@ -138,5 +157,6 @@ export const useReceptions = () => {
     updateReception,
     approveReception,
     rejectReception,
+    deleteReception,
   };
 };

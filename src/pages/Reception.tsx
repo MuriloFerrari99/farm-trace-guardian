@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Upload, Plus, Search, Filter, FileText, CheckCircle } from 'lucide-react';
+import { Upload, Plus, Search, Filter, FileText, CheckCircle, Eye, Edit2, Trash2 } from 'lucide-react';
 import { useReceptions } from '../hooks/useReceptions';
 import { useProducers } from '../hooks/useProducers';
 import { useAuth } from '../hooks/useAuth';
@@ -9,7 +9,7 @@ import ReceptionDetailModal from '@/components/Reception/ReceptionDetailModal';
 import ReceptionEditModal from '@/components/Reception/ReceptionEditModal';
 
 const Reception = () => {
-  const { receptions, isLoading, createReception, updateReception, approveReception, rejectReception } = useReceptions();
+  const { receptions, isLoading, createReception, updateReception, approveReception, rejectReception, deleteReception } = useReceptions();
   const { producers } = useProducers();
   const { user } = useAuth();
   const [showNewReceptionForm, setShowNewReceptionForm] = useState(false);
@@ -131,6 +131,12 @@ const Reception = () => {
     });
   };
 
+  const handleDeleteReception = async (id: string) => {
+    if (window.confirm('Tem certeza que deseja deletar este recebimento?')) {
+      await deleteReception.mutateAsync(id);
+    }
+  };
+
   const closeModals = () => {
     setShowDetailModal(false);
     setShowEditModal(false);
@@ -228,18 +234,30 @@ const Reception = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button 
-                      onClick={() => handleViewReception(reception)}
-                      className="text-green-600 hover:text-green-900 mr-3"
-                    >
-                      Ver
-                    </button>
-                    <button 
-                      onClick={() => handleEditReception(reception)}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      Editar
-                    </button>
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => handleViewReception(reception)}
+                        className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                        title="Ver recebimento"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleEditReception(reception)}
+                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                        title="Editar recebimento"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteReception(reception.id)}
+                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                        title="Deletar recebimento"
+                        disabled={deleteReception.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
