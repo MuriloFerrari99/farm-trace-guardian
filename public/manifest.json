@@ -1,7 +1,7 @@
 
 {
-  "name": "AgroTrace - Sistema de Rastreabilidade GLOBALG.A.P.",
-  "short_name": "AgroTrace",
+  "name": "Pé Doce - Sistema de Rastreabilidade GLOBALG.A.P.",
+  "short_name": "Pé Doce",
   "description": "Sistema completo de gestão e rastreabilidade para trading companies de produtos agrícolas certificados GLOBALG.A.P.",
   "start_url": "/",
   "display": "standalone",

@@ -10,7 +10,7 @@ import {
   BarChart3Icon,
   Users,
   Shield,
-  Globe,
+  TreePine,
   ChevronDown,
   ChevronRight,
   DollarSign,
@@ -72,8 +72,8 @@ const Sidebar = () => {
     <div className="bg-white border-r border-gray-200 w-64 min-h-screen">
       <div className="p-6">
         <div className="flex items-center space-x-2 mb-8">
-          <Globe className="h-8 w-8 text-green-600" />
-          <h1 className="text-xl font-bold text-gray-900">AgroTrace</h1>
+          <TreePine className="h-8 w-8 text-green-600" />
+          <h1 className="text-xl font-bold text-gray-900">Pé Doce</h1>
         </div>
         
         <nav className="space-y-2">
