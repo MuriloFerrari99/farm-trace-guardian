@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
-import { toast } from 'sonner';
+import { useErrorHandler } from './useErrorHandler';
 
 type Producer = Database['public']['Tables']['producers']['Row'];
 type ProducerInsert = Database['public']['Tables']['producers']['Insert'];
@@ -35,10 +35,17 @@ export const useProducers = () => {
 
 export const useCreateProducer = () => {
   const queryClient = useQueryClient();
+  const { handleError, handleSuccess } = useErrorHandler();
 
   return useMutation({
     mutationFn: async (producer: ProducerInsert) => {
       console.log('Creating producer with data:', producer);
+      
+      // Validate auth session before making request
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Usuário não autenticado');
+      }
       
       const { data, error } = await supabase
         .from('producers')
@@ -57,21 +64,26 @@ export const useCreateProducer = () => {
     onSuccess: (data) => {
       console.log('Producer creation success callback:', data);
       queryClient.invalidateQueries({ queryKey: ['producers'] });
-      toast.success('Produtor criado com sucesso!');
+      handleSuccess('Produtor criado com sucesso!');
     },
     onError: (error: any) => {
-      console.error('Error creating producer:', error);
-      const errorMessage = error?.message || 'Erro desconhecido ao criar produtor';
-      toast.error(`Erro ao criar produtor: ${errorMessage}`);
+      handleError(error, 'criação de produtor');
     },
   });
 };
 
 export const useUpdateProducer = () => {
   const queryClient = useQueryClient();
+  const { handleError, handleSuccess } = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: ProducerUpdate & { id: string }) => {
+      // Validate auth session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Usuário não autenticado');
+      }
+      
       const { data, error } = await supabase
         .from('producers')
         .update(updates)
@@ -84,20 +96,26 @@ export const useUpdateProducer = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['producers'] });
-      toast.success('Produtor atualizado com sucesso!');
+      handleSuccess('Produtor atualizado com sucesso!');
     },
     onError: (error) => {
-      console.error('Error updating producer:', error);
-      toast.error('Erro ao atualizar produtor');
+      handleError(error, 'atualização de produtor');
     },
   });
 };
 
 export const useDeleteProducer = () => {
   const queryClient = useQueryClient();
+  const { handleError, handleSuccess } = useErrorHandler();
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // Validate auth session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Usuário não autenticado');
+      }
+      
       const { error } = await supabase
         .from('producers')
         .delete()
@@ -107,11 +125,10 @@ export const useDeleteProducer = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['producers'] });
-      toast.success('Produtor removido com sucesso!');
+      handleSuccess('Produtor removido com sucesso!');
     },
     onError: (error) => {
-      console.error('Error deleting producer:', error);
-      toast.error('Erro ao remover produtor');
+      handleError(error, 'remoção de produtor');
     },
   });
 };

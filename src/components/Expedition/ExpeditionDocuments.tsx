@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Upload, Download, Eye, Trash2 } from 'lucide-react';
+import { useFileUpload } from '@/hooks/useFileUpload';
 
 interface Document {
   id: string;
@@ -44,6 +45,19 @@ export default function ExpeditionDocuments() {
   });
 
   const { toast } = useToast();
+  
+  const fileUpload = useFileUpload({
+    bucket: 'expedition-documents',
+    folder: 'expedition-docs',
+    maxSize: 10 * 1024 * 1024, // 10MB
+    allowedTypes: [
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ]
+  });
 
   const documentTypes = [
     { value: 'invoice', label: 'Nota Fiscal' },
@@ -59,28 +73,7 @@ export default function ExpeditionDocuments() {
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: "Erro",
-          description: "Arquivo muito grande. Máximo 10MB permitido.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      if (!allowedTypes.includes(file.type)) {
-        toast({
-          title: "Erro",
-          description: "Tipo de arquivo não permitido. Use PDF, DOC, DOCX, JPG ou PNG.",
-          variant: "destructive",
-        });
-        return;
-      }
-
+    if (file && fileUpload.validateFile(file)) {
       setNewDocument(prev => ({ ...prev, file }));
     }
   };
@@ -96,30 +89,27 @@ export default function ExpeditionDocuments() {
     }
 
     try {
-      // Here you would implement the actual file upload logic
-      // For now, we'll simulate it
-      const newDoc: Document = {
-        id: Date.now().toString(),
-        name: newDocument.file.name,
-        type: newDocument.type,
-        uploadDate: new Date().toISOString().split('T')[0],
-        size: `${(newDocument.file.size / 1024).toFixed(0)} KB`,
-        status: 'uploaded'
-      };
+      const filePath = await fileUpload.uploadFile(newDocument.file);
+      
+      if (filePath) {
+        const newDoc: Document = {
+          id: Date.now().toString(),
+          name: newDocument.file.name,
+          type: newDocument.type,
+          uploadDate: new Date().toISOString().split('T')[0],
+          size: `${(newDocument.file.size / 1024).toFixed(0)} KB`,
+          status: 'uploaded'
+        };
 
-      setDocuments([...documents, newDoc]);
-      setNewDocument({ type: '', file: null });
-
-      toast({
-        title: "Sucesso",
-        description: "Documento carregado com sucesso.",
-      });
+        setDocuments([...documents, newDoc]);
+        setNewDocument({ type: '', file: null });
+        
+        // Reset file input
+        const fileInput = document.getElementById('document-file') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      }
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar documento.",
-        variant: "destructive",
-      });
+      console.error('Error uploading document:', error);
     }
   };
 
@@ -207,11 +197,11 @@ export default function ExpeditionDocuments() {
 
             <Button 
               onClick={handleUpload}
-              disabled={!newDocument.type || !newDocument.file}
+              disabled={!newDocument.type || !newDocument.file || fileUpload.isUploading}
               className="w-full md:w-auto"
             >
               <Upload className="h-4 w-4 mr-2" />
-              Carregar Documento
+              {fileUpload.isUploading ? `Enviando... ${fileUpload.uploadProgress}%` : 'Carregar Documento'}
             </Button>
           </div>
         </CardContent>

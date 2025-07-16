@@ -7,43 +7,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import CostCenterManager from './CostCenterManager';
+import { useAccountsPayable } from '@/hooks/useFinancial';
+import { AccountsPayableForm } from './AccountsPayableForm';
 
 const AccountsPayable = () => {
   const [showNewPayable, setShowNewPayable] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [selectedCostCenter, setSelectedCostCenter] = useState('');
 
-  const { data: payables } = useQuery({
-    queryKey: ['accounts-payable', searchTerm, filterStatus],
-    queryFn: async () => {
-      let query = supabase
-        .from('accounts_payable')
-        .select(`
-          *,
-          producers(name),
-          receptions(reception_code)
-        `)
-        .order('due_date', { ascending: true });
+  const { payables, isLoading } = useAccountsPayable();
 
-      if (filterStatus && filterStatus !== 'all' && ['previsto', 'realizado', 'cancelado'].includes(filterStatus)) {
-        query = query.eq('status', filterStatus as 'previsto' | 'realizado' | 'cancelado');
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      
-      return data?.filter(item => 
-        searchTerm === '' || 
-        item.supplier_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.invoice_number && item.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
+  // Filter payables based on search and status
+  const filteredPayables = payables?.filter(item => {
+    const matchesSearch = searchTerm === '' || 
+      item.supplier_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.invoice_number && item.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesStatus = filterStatus === 'all' || 
+      (filterStatus && ['previsto', 'realizado', 'cancelado'].includes(filterStatus) && item.status === filterStatus);
+    
+    return matchesSearch && matchesStatus;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-green-500 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
@@ -71,11 +63,11 @@ const AccountsPayable = () => {
     return new Date(dueDate) < new Date();
   };
 
-  const totalAmount = payables?.reduce((sum, item) => sum + Number(item.amount_brl), 0) || 0;
-  const overdueAmount = payables?.filter(item => isOverdue(item.due_date) && item.status === 'previsto')
-    .reduce((sum, item) => sum + Number(item.amount_brl), 0) || 0;
-  const paidAmount = payables?.filter(item => item.status === 'realizado')
-    .reduce((sum, item) => sum + Number(item.amount_paid || item.amount_brl), 0) || 0;
+  const totalAmount = filteredPayables?.reduce((sum, item) => sum + Number(item.amount_brl || item.amount), 0) || 0;
+  const overdueAmount = filteredPayables?.filter(item => isOverdue(item.due_date) && item.status === 'previsto')
+    .reduce((sum, item) => sum + Number(item.amount_brl || item.amount), 0) || 0;
+  const paidAmount = filteredPayables?.filter(item => item.status === 'realizado')
+    .reduce((sum, item) => sum + Number(item.amount_paid || item.amount_brl || item.amount), 0) || 0;
 
   return (
     <div className="space-y-6">
@@ -123,13 +115,13 @@ const AccountsPayable = () => {
           </CardContent>
         </Card>
 
-        <Card>
+                <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total de Contas</p>
                 <p className="text-2xl font-bold text-purple-600">
-                  {payables?.length || 0}
+                  {filteredPayables?.length || 0}
                 </p>
               </div>
               <Calendar className="h-8 w-8 text-purple-600" />
@@ -155,60 +147,8 @@ const AccountsPayable = () => {
                   <DialogHeader>
                     <DialogTitle>Nova Conta a Pagar</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Fornecedor</Label>
-                        <Input placeholder="Nome do fornecedor" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Número da Fatura</Label>
-                        <Input placeholder="Ex: NF-2024-001" />
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Valor</Label>
-                        <Input type="number" placeholder="0,00" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Data de Vencimento</Label>
-                        <Input type="date" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Centro de Custo</Label>
-                      <CostCenterManager
-                        value={selectedCostCenter}
-                        onValueChange={setSelectedCostCenter}
-                        placeholder="Selecione o centro de custo"
-                        accountType="despesa"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Forma de Pagamento</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a forma" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pix">PIX</SelectItem>
-                          <SelectItem value="transferencia">Transferência</SelectItem>
-                          <SelectItem value="boleto">Boleto</SelectItem>
-                          <SelectItem value="cheque">Cheque</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="flex gap-2 pt-4">
-                      <Button onClick={() => setShowNewPayable(false)} variant="outline" className="flex-1">
-                        Cancelar
-                      </Button>
-                      <Button className="flex-1">Salvar</Button>
-                    </div>
+                  <div className="py-4">
+                    <AccountsPayableForm onSuccess={() => setShowNewPayable(false)} />
                   </div>
                 </DialogContent>
               </Dialog>
@@ -264,7 +204,7 @@ const AccountsPayable = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {payables?.map((payable) => (
+              {filteredPayables?.map((payable) => (
                 <TableRow 
                   key={payable.id}
                   className={isOverdue(payable.due_date) && payable.status === 'previsto' ? 'bg-orange-50' : ''}
@@ -272,16 +212,16 @@ const AccountsPayable = () => {
                   <TableCell>
                     <div>
                       <div className="font-medium">{payable.supplier_name}</div>
-                      {payable.producers && (
-                        <div className="text-xs text-gray-500">Produtor: {payable.producers.name}</div>
+                      {payable.producer_id && (
+                        <div className="text-xs text-gray-500">Produtor ID: {payable.producer_id}</div>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div>
                       {payable.invoice_number || '-'}
-                      {payable.receptions && (
-                        <div className="text-xs text-gray-500">Recep: {payable.receptions.reception_code}</div>
+                      {payable.reception_id && (
+                        <div className="text-xs text-gray-500">Recep ID: {payable.reception_id}</div>
                       )}
                     </div>
                   </TableCell>
@@ -297,8 +237,8 @@ const AccountsPayable = () => {
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">
-                    R$ {Number(payable.amount_brl).toLocaleString('pt-BR')}
-                    {payable.currency !== 'BRL' && (
+                    R$ {Number(payable.amount_brl || payable.amount).toLocaleString('pt-BR')}
+                    {payable.currency && payable.currency !== 'BRL' && (
                       <div className="text-xs text-gray-500">
                         {payable.currency} {Number(payable.amount).toLocaleString()}
                       </div>

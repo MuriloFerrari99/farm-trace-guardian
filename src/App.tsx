@@ -6,6 +6,7 @@ import { Toaster } from 'sonner';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuthContext } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import AuthModal from './components/Auth/AuthModal';
 import Sidebar from './components/Layout/Sidebar';
 import Header from './components/Layout/Header';
@@ -68,17 +69,17 @@ const AppContent: React.FC = () => {
           <Header />
           <main className="flex-1 overflow-y-auto">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/reception" element={<Reception />} />
-              <Route path="/identification" element={<Identification />} />
-              <Route path="/storage" element={<Storage />} />
-              <Route path="/consolidation" element={<Consolidation />} />
-              <Route path="/expedition" element={<Expedition />} />
-              <Route path="/financial" element={<Financial />} />
-              <Route path="/crm" element={<CRM />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/producers" element={<Producers />} />
-            <Route path="/compliance" element={<div className="p-6"><h1 className="text-2xl font-bold">Módulo de Conformidade</h1><p className="text-gray-600 mt-2">Em desenvolvimento...</p></div>} />
+              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/reception" element={<ProtectedRoute><Reception /></ProtectedRoute>} />
+              <Route path="/identification" element={<ProtectedRoute><Identification /></ProtectedRoute>} />
+              <Route path="/storage" element={<ProtectedRoute><Storage /></ProtectedRoute>} />
+              <Route path="/consolidation" element={<ProtectedRoute><Consolidation /></ProtectedRoute>} />
+              <Route path="/expedition" element={<ProtectedRoute><Expedition /></ProtectedRoute>} />
+              <Route path="/financial" element={<ProtectedRoute><Financial /></ProtectedRoute>} />
+              <Route path="/crm" element={<ProtectedRoute><CRM /></ProtectedRoute>} />
+              <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+              <Route path="/producers" element={<ProtectedRoute><Producers /></ProtectedRoute>} />
+              <Route path="/compliance" element={<ProtectedRoute><div className="p-6"><h1 className="text-2xl font-bold">Módulo de Conformidade</h1><p className="text-gray-600 mt-2">Em desenvolvimento...</p></div></ProtectedRoute>} />
             </Routes>
           </main>
         </div>
