@@ -80,19 +80,30 @@ const CostCenterManager: React.FC<CostCenterManagerProps> = ({
 
     setIsSubmitting(true);
     try {
+      console.log('Creating cost center with data:', newCostCenter);
+      
+      const insertData = {
+        account_code: newCostCenter.account_code,
+        account_name: newCostCenter.account_name,
+        account_type: newCostCenter.account_type,
+        cost_center: newCostCenter.cost_center,
+        description: newCostCenter.description || null
+      };
+      
+      console.log('Insert data:', insertData);
+      
       const { data, error } = await supabase
         .from('chart_of_accounts')
-        .insert([{
-          account_code: newCostCenter.account_code,
-          account_name: newCostCenter.account_name,
-          account_type: newCostCenter.account_type,
-          cost_center: newCostCenter.cost_center,
-          description: newCostCenter.description || null
-        }])
+        .insert([insertData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error creating cost center:', error);
+        throw error;
+      }
+
+      console.log('Cost center created successfully:', data);
 
       // Update the query cache
       queryClient.invalidateQueries({ queryKey: ['cost-centers'] });
@@ -116,11 +127,12 @@ const CostCenterManager: React.FC<CostCenterManagerProps> = ({
         description: ''
       });
       setIsDialogOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating cost center:', error);
+      const errorMessage = error?.message || 'Erro desconhecido ao criar centro de custo';
       toast({
         title: "Erro",
-        description: "Erro ao criar centro de custo",
+        description: `Erro ao criar centro de custo: ${errorMessage}`,
         variant: "destructive"
       });
     } finally {

@@ -38,22 +38,31 @@ export const useCreateProducer = () => {
 
   return useMutation({
     mutationFn: async (producer: ProducerInsert) => {
+      console.log('Creating producer with data:', producer);
+      
       const { data, error } = await supabase
         .from('producers')
         .insert(producer)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error creating producer:', error);
+        throw error;
+      }
+      
+      console.log('Producer created successfully:', data);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Producer creation success callback:', data);
       queryClient.invalidateQueries({ queryKey: ['producers'] });
       toast.success('Produtor criado com sucesso!');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error creating producer:', error);
-      toast.error('Erro ao criar produtor');
+      const errorMessage = error?.message || 'Erro desconhecido ao criar produtor';
+      toast.error(`Erro ao criar produtor: ${errorMessage}`);
     },
   });
 };
