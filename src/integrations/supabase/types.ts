@@ -1929,12 +1929,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_user_role: {
-        Args: { user_id: string }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
-      is_admin_or_supervisor: {
-        Args: { user_id: string }
+      is_current_user_admin_or_supervisor: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }
