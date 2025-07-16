@@ -1,26 +1,54 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useLabels } from '@/hooks/useLabels';
-import { QrCode, Printer, Calendar, Trash2 } from 'lucide-react';
+import { QrCode, Printer, Calendar, Trash2, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { generateLabelPDF } from '@/utils/labelPrinter';
+import { toast } from 'sonner';
 
 const LabelList = () => {
   const { labels, isLoading, updateLabel, deleteLabel } = useLabels();
+  const [printingLabelId, setPrintingLabelId] = useState<string | null>(null);
 
   const handlePrint = async (labelId: string) => {
-    await updateLabel.mutateAsync({
-      id: labelId,
-      updates: {
-        printed_at: new Date().toISOString(),
-      },
-    });
+    const label = labels?.find(l => l.id === labelId);
+    if (!label?.reception) {
+      toast.error('Dados da etiqueta incompletos');
+      return;
+    }
+
+    setPrintingLabelId(labelId);
     
-    // Here you would integrate with a printer or generate a PDF
-    console.log('Printing label:', labelId);
+    try {
+      // Generate and download PDF
+      await generateLabelPDF({
+        labelCode: label.label_code,
+        receptionCode: label.reception.reception_code,
+        productType: label.reception.product_type,
+        producerName: label.reception.producer?.name || 'N/A',
+        quantity: label.reception.quantity_kg,
+        receptionDate: format(new Date(label.created_at!), 'dd/MM/yyyy'),
+      });
+
+      // Update printed status
+      await updateLabel.mutateAsync({
+        id: labelId,
+        updates: {
+          printed_at: new Date().toISOString(),
+        },
+      });
+
+      toast.success('Etiqueta impressa com sucesso!');
+    } catch (error) {
+      console.error('Erro ao imprimir etiqueta:', error);
+      toast.error('Erro ao imprimir etiqueta');
+    } finally {
+      setPrintingLabelId(null);
+    }
   };
 
   const handleDelete = async (labelId: string) => {
@@ -93,10 +121,17 @@ const LabelList = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => handlePrint(label.id)}
-                        disabled={updateLabel.isPending}
+                        disabled={printingLabelId === label.id || updateLabel.isPending}
                       >
-                        <Printer className="h-4 w-4 mr-1" />
-                        {label.printed_at ? 'Reimprimir' : 'Imprimir'}
+                        {printingLabelId === label.id ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : (
+                          <Printer className="h-4 w-4 mr-1" />
+                        )}
+                        {printingLabelId === label.id 
+                          ? 'Imprimindo...' 
+                          : label.printed_at ? 'Reimprimir' : 'Imprimir'
+                        }
                       </Button>
                       <Button
                         size="sm"
