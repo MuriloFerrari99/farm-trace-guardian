@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CrmContacts from '@/components/CRM/CrmContacts';
 import CrmSalesFunnel from '@/components/CRM/CrmSalesFunnel';
 import CrmDashboard from '@/components/CRM/CrmDashboard';
-import CrmReports from '@/components/CRM/CrmReports';
+
 import CrmInteractions from '@/components/CRM/CrmInteractions';
 
 const CRM = () => {
@@ -14,7 +14,7 @@ const CRM = () => {
 
   React.useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['dashboard', 'contacts', 'interactions', 'funnel', 'reports'].includes(tab)) {
+    if (tab && ['dashboard', 'contacts', 'interactions', 'funnel'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -35,7 +35,7 @@ const CRM = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Dashboard
@@ -51,10 +51,6 @@ const CRM = () => {
           <TabsTrigger value="funnel" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
             Funil de Vendas
-          </TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Relatórios
           </TabsTrigger>
         </TabsList>
 
@@ -74,9 +70,6 @@ const CRM = () => {
           <CrmSalesFunnel />
         </TabsContent>
 
-        <TabsContent value="reports">
-          <CrmReports />
-        </TabsContent>
       </Tabs>
     </div>
   );
