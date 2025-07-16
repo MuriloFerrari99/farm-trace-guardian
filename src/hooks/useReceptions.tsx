@@ -82,11 +82,61 @@ export const useReceptions = () => {
     },
   });
 
+  const approveReception = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('receptions')
+        .update({ 
+          status: 'approved',
+          approved_at: new Date().toISOString(),
+          approved_by: (await supabase.auth.getUser()).data.user?.id
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receptions'] });
+      toast.success('Recebimento aprovado com sucesso!');
+    },
+    onError: (error) => {
+      console.error('Error approving reception:', error);
+      toast.error('Erro ao aprovar recebimento');
+    },
+  });
+
+  const rejectReception = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('receptions')
+        .update({ status: 'rejected' })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receptions'] });
+      toast.success('Recebimento rejeitado');
+    },
+    onError: (error) => {
+      console.error('Error rejecting reception:', error);
+      toast.error('Erro ao rejeitar recebimento');
+    },
+  });
+
   return {
     receptions,
     isLoading,
     error,
     createReception,
     updateReception,
+    approveReception,
+    rejectReception,
   };
 };

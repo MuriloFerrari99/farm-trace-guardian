@@ -5,12 +5,17 @@ import { useReceptions } from '../hooks/useReceptions';
 import { useProducers } from '../hooks/useProducers';
 import { useAuth } from '../hooks/useAuth';
 import { Database } from '@/integrations/supabase/types';
+import ReceptionDetailModal from '@/components/Reception/ReceptionDetailModal';
+import ReceptionEditModal from '@/components/Reception/ReceptionEditModal';
 
 const Reception = () => {
-  const { receptions, isLoading, createReception } = useReceptions();
+  const { receptions, isLoading, createReception, updateReception, approveReception, rejectReception } = useReceptions();
   const { producers } = useProducers();
   const { user } = useAuth();
   const [showNewReceptionForm, setShowNewReceptionForm] = useState(false);
+  const [selectedReception, setSelectedReception] = useState<typeof receptions extends (infer T)[] ? T : never | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
     producer_id: '',
     product_type: 'tomate' as Database['public']['Enums']['product_type'],
@@ -84,6 +89,52 @@ const Reception = () => {
         });
       },
     });
+  };
+
+  const handleViewReception = (reception: typeof receptions extends (infer T)[] ? T : never) => {
+    setSelectedReception(reception);
+    setShowDetailModal(true);
+  };
+
+  const handleEditReception = (reception?: typeof receptions extends (infer T)[] ? T : never) => {
+    if (reception) {
+      setSelectedReception(reception);
+    }
+    setShowDetailModal(false);
+    setShowEditModal(true);
+  };
+
+  const handleSaveReception = (id: string, updates: Partial<Database['public']['Tables']['receptions']['Update']>) => {
+    updateReception.mutate({ id, updates }, {
+      onSuccess: () => {
+        setShowEditModal(false);
+        setSelectedReception(null);
+      }
+    });
+  };
+
+  const handleApproveReception = (id: string) => {
+    approveReception.mutate(id, {
+      onSuccess: () => {
+        setShowDetailModal(false);
+        setSelectedReception(null);
+      }
+    });
+  };
+
+  const handleRejectReception = (id: string) => {
+    rejectReception.mutate(id, {
+      onSuccess: () => {
+        setShowDetailModal(false);
+        setSelectedReception(null);
+      }
+    });
+  };
+
+  const closeModals = () => {
+    setShowDetailModal(false);
+    setShowEditModal(false);
+    setSelectedReception(null);
   };
 
   if (isLoading) {
@@ -177,8 +228,18 @@ const Reception = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-green-600 hover:text-green-900 mr-3">Ver</button>
-                    <button className="text-blue-600 hover:text-blue-900">Editar</button>
+                    <button 
+                      onClick={() => handleViewReception(reception)}
+                      className="text-green-600 hover:text-green-900 mr-3"
+                    >
+                      Ver
+                    </button>
+                    <button 
+                      onClick={() => handleEditReception(reception)}
+                      className="text-blue-600 hover:text-blue-900"
+                    >
+                      Editar
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -348,6 +409,28 @@ const Reception = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Detail Modal */}
+      {selectedReception && (
+        <ReceptionDetailModal
+          reception={selectedReception}
+          isOpen={showDetailModal}
+          onClose={closeModals}
+          onApprove={handleApproveReception}
+          onReject={handleRejectReception}
+          onEdit={() => handleEditReception()}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {selectedReception && (
+        <ReceptionEditModal
+          reception={selectedReception}
+          isOpen={showEditModal}
+          onClose={closeModals}
+          onSave={handleSaveReception}
+        />
       )}
     </div>
   );
