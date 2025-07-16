@@ -20,7 +20,9 @@ import {
   ArrowDownRight,
   Building,
   FileCheck,
-  Calculator
+  Calculator,
+  Phone,
+  Target
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -28,6 +30,7 @@ const Sidebar = () => {
   const { t } = useLanguage();
   const [operationsOpen, setOperationsOpen] = useState(true);
   const [financialOpen, setFinancialOpen] = useState(true);
+  const [commercialOpen, setCommercialOpen] = useState(true);
 
   const mainMenuItems = [
     { path: '/', icon: BarChart3Icon, key: 'dashboard' },
@@ -53,8 +56,14 @@ const Sidebar = () => {
     { path: '/financial?tab=reports', icon: Calculator, key: 'Relatórios' },
   ];
 
+  const commercialItems = [
+    { path: '/crm', icon: BarChart3Icon, key: 'Dashboard' },
+    { path: '/crm?tab=contacts', icon: Users, key: 'Contatos' },
+    { path: '/crm?tab=interactions', icon: Phone, key: 'Interações' },
+    { path: '/crm?tab=funnel', icon: Target, key: 'Funil de Vendas' },
+  ];
+
   const otherMenuItems = [
-    { path: '/crm', icon: Users, key: 'CRM' },
     { path: '/reports', icon: FileTextIcon, key: 'reports' },
     { path: '/producers', icon: Users, key: 'producers' },
     { path: '/compliance', icon: Shield, key: 'compliance' },
@@ -128,6 +137,36 @@ const Sidebar = () => {
             {financialOpen && (
               <div className="ml-4 mt-1 space-y-1">
                 {financialItems.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    className="flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className="font-medium">{item.key}</span>
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Commercial category */}
+          <div className="pt-2">
+            <button
+              onClick={() => setCommercialOpen(!commercialOpen)}
+              className="flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              <span className="font-medium text-sm uppercase tracking-wide">Comercial</span>
+              {commercialOpen ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </button>
+            
+            {commercialOpen && (
+              <div className="ml-4 mt-1 space-y-1">
+                {commercialItems.map((item) => (
                   <NavLink
                     key={item.path}
                     to={item.path}
