@@ -16,7 +16,7 @@ export default function Expedition() {
       </div>
 
       <Tabs defaultValue="new-expedition" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="new-expedition" className="flex items-center gap-2">
             <Truck className="h-4 w-4" />
             Nova Expedição
@@ -28,10 +28,6 @@ export default function Expedition() {
           <TabsTrigger value="documents" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Documentos
-          </TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Relatórios
           </TabsTrigger>
         </TabsList>
 
@@ -45,19 +41,6 @@ export default function Expedition() {
 
         <TabsContent value="documents">
           <ExpeditionDocuments />
-        </TabsContent>
-
-        <TabsContent value="reports">
-          <div className="text-center py-12">
-            <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Relatórios de Expedição</h3>
-            <p className="text-muted-foreground mb-6">
-              Relatórios detalhados por expedição, cliente, data e não conformidades
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Funcionalidade em desenvolvimento...
-            </p>
-          </div>
         </TabsContent>
       </Tabs>
     </div>

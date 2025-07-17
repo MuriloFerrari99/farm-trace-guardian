@@ -141,6 +141,41 @@ export const useExpeditions = () => {
     }
   };
 
+  const deleteExpedition = async (expeditionId: string) => {
+    try {
+      // First delete expedition items
+      const { error: itemsError } = await supabase
+        .from('expedition_items')
+        .delete()
+        .eq('expedition_id', expeditionId);
+
+      if (itemsError) throw itemsError;
+
+      // Then delete the expedition
+      const { error: expeditionError } = await supabase
+        .from('expeditions')
+        .delete()
+        .eq('id', expeditionId);
+
+      if (expeditionError) throw expeditionError;
+
+      toast({
+        title: "Sucesso",
+        description: "Expedição excluída com sucesso",
+      });
+
+      await fetchExpeditions();
+    } catch (error) {
+      console.error('Error deleting expedition:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir expedição",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   const getAvailableConsolidations = async () => {
     try {
       const { data, error } = await supabase
@@ -190,6 +225,7 @@ export const useExpeditions = () => {
     expeditions,
     loading,
     createExpedition,
+    deleteExpedition,
     getAvailableConsolidations,
     generateNextExpeditionCode,
     refetch: fetchExpeditions,
