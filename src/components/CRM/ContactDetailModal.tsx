@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useCrmInteractions } from '@/hooks/useCrmInteractions';
 import { useCrmTasks } from '@/hooks/useCrmTasks';
+import { useCrmOpportunities } from '@/hooks/useCrmOpportunities';
 import InteractionTimeline from './InteractionTimeline';
 import NewInteractionModal from './NewInteractionModal';
 import NewTaskModal from './NewTaskModal';
@@ -30,6 +31,9 @@ const ContactDetailModal = ({
 }: ContactDetailModalProps) => {
   const [showNewInteraction, setShowNewInteraction] = useState(false);
   const [showNewTask, setShowNewTask] = useState(false);
+  const [showNewOpportunity, setShowNewOpportunity] = useState(false);
+  
+  const { opportunities } = useCrmOpportunities();
   const { interactions, isLoading, createInteraction, isCreating } = useCrmInteractions(contact?.id);
   const { 
     tasks, 
