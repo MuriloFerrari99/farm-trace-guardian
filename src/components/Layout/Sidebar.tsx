@@ -82,14 +82,21 @@ const Sidebar = () => {
         <nav className="space-y-2">
           {/* Main menu items */}
           {mainMenuItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="font-medium">{t(item.key)}</span>
-            </NavLink>
+             <NavLink
+               key={item.path}
+               to={item.path}
+               end
+               className={({ isActive }) => 
+                 `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                   isActive 
+                     ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600' 
+                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                 }`
+               }
+             >
+               <item.icon className="h-5 w-5" />
+               <span className="font-medium">{t(item.key)}</span>
+             </NavLink>
           ))}
 
           {/* Operations category */}
