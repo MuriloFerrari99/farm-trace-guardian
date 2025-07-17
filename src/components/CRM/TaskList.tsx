@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import GoogleCalendarSync from './GoogleCalendarSync';
 
 interface TaskListProps {
   tasks: any[];
@@ -182,6 +183,10 @@ const TaskList = ({
                     </span>
                   </div>
                 )}
+
+                <div className="flex items-center justify-between mt-2">
+                  <GoogleCalendarSync task={task} />
+                </div>
               </div>
 
               <div className="flex flex-col gap-1 ml-4">
