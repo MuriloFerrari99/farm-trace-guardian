@@ -361,11 +361,21 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
   }
   
   // Technical Specifications Table
+  console.log('Technical specs debug:', {
+    co2_min: proposal.co2_range_min,
+    co2_max: proposal.co2_range_max,
+    o2_min: proposal.o2_range_min,
+    o2_max: proposal.o2_range_max,
+    temp_min: proposal.temperature_min,
+    temp_max: proposal.temperature_max,
+    container_sealed: proposal.container_sealed
+  });
+  
   const techHeaders = [t.technicalSpecs];
   const techRows = [
-    [`${t.co2Range}: ${proposal.co2_range_min || 3}% - ${proposal.co2_range_max || 10}%`],
-    [`${t.o2Range}: ${proposal.o2_range_min || 2}% - ${proposal.o2_range_max || 5}%`],
-    [`${t.temperature}: ${proposal.temperature_min || 5}°C - ${proposal.temperature_max || 7}°C`],
+    [`${t.co2Range}: ${proposal.co2_range_min ?? 3}% - ${proposal.co2_range_max ?? 10}%`],
+    [`${t.o2Range}: ${proposal.o2_range_min ?? 2}% - ${proposal.o2_range_max ?? 5}%`],
+    [`${t.temperature}: ${proposal.temperature_min ?? 5}°C - ${proposal.temperature_max ?? 7}°C`],
     [`${t.containerSealed}: ${proposal.container_sealed ? t.yes : t.no}`]
   ];
   

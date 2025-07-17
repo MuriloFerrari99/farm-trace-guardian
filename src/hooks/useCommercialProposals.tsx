@@ -56,6 +56,17 @@ export const useCommercialProposals = () => {
         expires_at: new Date(Date.now() + (proposal.validity_days || 30) * 24 * 60 * 60 * 1000).toISOString(),
       };
 
+      // Debug log to check data being sent
+      console.log('Creating proposal with data:', {
+        co2_range_min: proposalData.co2_range_min,
+        co2_range_max: proposalData.co2_range_max,
+        o2_range_min: proposalData.o2_range_min,
+        o2_range_max: proposalData.o2_range_max,
+        temperature_min: proposalData.temperature_min,
+        temperature_max: proposalData.temperature_max,
+        container_sealed: proposalData.container_sealed
+      });
+
       const { data, error } = await supabase
         .from('commercial_proposals')
         .insert(proposalData)
@@ -63,6 +74,17 @@ export const useCommercialProposals = () => {
         .single();
 
       if (error) throw error;
+
+      console.log('Proposal created successfully:', {
+        id: data.id,
+        co2_range_min: data.co2_range_min,
+        co2_range_max: data.co2_range_max,
+        o2_range_min: data.o2_range_min,
+        o2_range_max: data.o2_range_max,
+        temperature_min: data.temperature_min,
+        temperature_max: data.temperature_max,
+        container_sealed: data.container_sealed
+      });
 
       toast({
         title: "Proposta criada com sucesso!",

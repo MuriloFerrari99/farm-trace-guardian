@@ -340,80 +340,126 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            Especificações Técnicas de Envio
+            Especificações Técnicas de Transporte
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>CO₂ (%)</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  value={formData.co2_range_min}
-                  onChange={(e) => handleInputChange('co2_range_min', Number(e.target.value))}
-                  placeholder="Min"
-                  step="0.1"
-                />
-                <span className="flex items-center">-</span>
-                <Input
-                  type="number"
-                  value={formData.co2_range_max}
-                  onChange={(e) => handleInputChange('co2_range_max', Number(e.target.value))}
-                  placeholder="Max"
-                  step="0.1"
-                />
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Atmospheric Specifications */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-muted-foreground">Especificações Atmosféricas</h4>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-sm font-medium">Concentração de CO₂ (%)</Label>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        value={formData.co2_range_min || ''}
+                        onChange={(e) => handleInputChange('co2_range_min', e.target.value ? Number(e.target.value) : 3)}
+                        placeholder="Mín"
+                        step="0.1"
+                        className="text-center"
+                      />
+                      <span className="text-xs text-muted-foreground block mt-1">Mínimo</span>
+                    </div>
+                    <span className="text-muted-foreground font-medium">até</span>
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        value={formData.co2_range_max || ''}
+                        onChange={(e) => handleInputChange('co2_range_max', e.target.value ? Number(e.target.value) : 10)}
+                        placeholder="Máx"
+                        step="0.1"
+                        className="text-center"
+                      />
+                      <span className="text-xs text-muted-foreground block mt-1">Máximo</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <Label className="text-sm font-medium">Concentração de O₂ (%)</Label>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        value={formData.o2_range_min || ''}
+                        onChange={(e) => handleInputChange('o2_range_min', e.target.value ? Number(e.target.value) : 2)}
+                        placeholder="Mín"
+                        step="0.1"
+                        className="text-center"
+                      />
+                      <span className="text-xs text-muted-foreground block mt-1">Mínimo</span>
+                    </div>
+                    <span className="text-muted-foreground font-medium">até</span>
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        value={formData.o2_range_max || ''}
+                        onChange={(e) => handleInputChange('o2_range_max', e.target.value ? Number(e.target.value) : 5)}
+                        placeholder="Máx"
+                        step="0.1"
+                        className="text-center"
+                      />
+                      <span className="text-xs text-muted-foreground block mt-1">Máximo</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div>
-              <Label>O₂ (%)</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  value={formData.o2_range_min}
-                  onChange={(e) => handleInputChange('o2_range_min', Number(e.target.value))}
-                  placeholder="Min"
-                  step="0.1"
-                />
-                <span className="flex items-center">-</span>
-                <Input
-                  type="number"
-                  value={formData.o2_range_max}
-                  onChange={(e) => handleInputChange('o2_range_max', Number(e.target.value))}
-                  placeholder="Max"
-                  step="0.1"
-                />
+
+            {/* Temperature and Container Specifications */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-muted-foreground">Condições de Transporte</h4>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-sm font-medium">Temperatura de Transporte (°C)</Label>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        value={formData.temperature_min || ''}
+                        onChange={(e) => handleInputChange('temperature_min', e.target.value ? Number(e.target.value) : 5)}
+                        placeholder="Mín"
+                        step="0.1"
+                        className="text-center"
+                      />
+                      <span className="text-xs text-muted-foreground block mt-1">Mínimo</span>
+                    </div>
+                    <span className="text-muted-foreground font-medium">até</span>
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        value={formData.temperature_max || ''}
+                        onChange={(e) => handleInputChange('temperature_max', e.target.value ? Number(e.target.value) : 7)}
+                        placeholder="Máx"
+                        step="0.1"
+                        className="text-center"
+                      />
+                      <span className="text-xs text-muted-foreground block mt-1">Máximo</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3 p-3 bg-muted/30 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="container_sealed"
+                    checked={formData.container_sealed}
+                    onChange={(e) => handleInputChange('container_sealed', e.target.checked)}
+                    className="mt-1 rounded border-border"
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor="container_sealed" className="text-sm font-medium cursor-pointer">
+                      Válvulas e drenos do container lacrados
+                    </Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Container será enviado com sistema de ventilação controlada
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div>
-              <Label>Temperatura (°C)</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  value={formData.temperature_min}
-                  onChange={(e) => handleInputChange('temperature_min', Number(e.target.value))}
-                  placeholder="Min"
-                  step="0.1"
-                />
-                <span className="flex items-center">-</span>
-                <Input
-                  type="number"
-                  value={formData.temperature_max}
-                  onChange={(e) => handleInputChange('temperature_max', Number(e.target.value))}
-                  placeholder="Max"
-                  step="0.1"
-                />
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="container_sealed"
-                checked={formData.container_sealed}
-                onChange={(e) => handleInputChange('container_sealed', e.target.checked)}
-                className="rounded border-border"
-              />
-              <Label htmlFor="container_sealed">Válvulas e drenos do container lacrados</Label>
             </div>
           </div>
         </CardContent>
