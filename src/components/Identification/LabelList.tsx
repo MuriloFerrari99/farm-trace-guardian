@@ -32,6 +32,7 @@ const LabelList = () => {
         producerName: label.reception.producer?.name || 'N/A',
         quantity: label.reception.quantity_kg,
         receptionDate: format(new Date(label.created_at!), 'dd/MM/yyyy'),
+        receptionId: label.reception_id,
       });
 
       // Update printed status

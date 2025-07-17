@@ -1,0 +1,10 @@
+-- Just add the new product types for now
+ALTER TYPE product_type ADD VALUE IF NOT EXISTS 'abacate_hass';
+ALTER TYPE product_type ADD VALUE IF NOT EXISTS 'abacate_geada';
+ALTER TYPE product_type ADD VALUE IF NOT EXISTS 'abacate_brede';
+ALTER TYPE product_type ADD VALUE IF NOT EXISTS 'abacate_margarida';
+ALTER TYPE product_type ADD VALUE IF NOT EXISTS 'manga_tommy';
+ALTER TYPE product_type ADD VALUE IF NOT EXISTS 'manga_maca';
+ALTER TYPE product_type ADD VALUE IF NOT EXISTS 'manga_palmer';
+ALTER TYPE product_type ADD VALUE IF NOT EXISTS 'mel';
+ALTER TYPE product_type ADD VALUE IF NOT EXISTS 'limao_tahiti';

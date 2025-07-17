@@ -20,6 +20,7 @@ import Expedition from './pages/Expedition';
 import Reports from './pages/Reports';
 import Financial from './pages/Financial';
 import CRM from './pages/CRM';
+import ReceptionDetails from './pages/ReceptionDetails';
 
 const queryClient = new QueryClient();
 
@@ -79,7 +80,8 @@ const AppContent: React.FC = () => {
               <Route path="/crm" element={<ProtectedRoute><CRM /></ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
               <Route path="/producers" element={<ProtectedRoute><Producers /></ProtectedRoute>} />
-              <Route path="/compliance" element={<ProtectedRoute><div className="p-6"><h1 className="text-2xl font-bold">Módulo de Conformidade</h1><p className="text-gray-600 mt-2">Em desenvolvimento...</p></div></ProtectedRoute>} />
+              <Route path="/reception/details/:id" element={<ProtectedRoute><ReceptionDetails /></ProtectedRoute>} />
+              
             </Routes>
           </main>
         </div>

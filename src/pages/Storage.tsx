@@ -1,7 +1,6 @@
 import React from 'react';
 import { Warehouse } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import StorageMap from '@/components/Storage/StorageMap';
 import LotMovementForm from '@/components/Storage/LotMovementForm';
 import StorageChecklist from '@/components/Storage/StorageChecklist';
 import CurrentLotsList from '@/components/Storage/CurrentLotsList';
@@ -17,17 +16,12 @@ const Storage = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="map" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="map">Mapeamento Digital</TabsTrigger>
+      <Tabs defaultValue="movement" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="movement">Movimentações</TabsTrigger>
           <TabsTrigger value="checklist">Checklist</TabsTrigger>
           <TabsTrigger value="lots">Lotes Atuais</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="map" className="space-y-6">
-          <StorageMap />
-        </TabsContent>
 
         <TabsContent value="movement" className="space-y-6">
           <LotMovementForm />

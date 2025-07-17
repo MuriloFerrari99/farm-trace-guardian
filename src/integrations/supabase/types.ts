@@ -2011,7 +2011,21 @@ export type Database = {
         | "cartao"
         | "pix"
         | "swift"
-      product_type: "tomate" | "alface" | "pepino" | "pimentao" | "outros"
+      product_type:
+        | "tomate"
+        | "alface"
+        | "pepino"
+        | "pimentao"
+        | "outros"
+        | "abacate_hass"
+        | "abacate_geada"
+        | "abacate_brede"
+        | "abacate_margarida"
+        | "manga_tommy"
+        | "manga_maca"
+        | "manga_palmer"
+        | "mel"
+        | "limao_tahiti"
       reception_status: "pending" | "approved" | "rejected"
       transaction_status: "previsto" | "realizado" | "cancelado"
       user_role: "admin" | "operator" | "supervisor"
@@ -2224,7 +2238,22 @@ export const Constants = {
         "pix",
         "swift",
       ],
-      product_type: ["tomate", "alface", "pepino", "pimentao", "outros"],
+      product_type: [
+        "tomate",
+        "alface",
+        "pepino",
+        "pimentao",
+        "outros",
+        "abacate_hass",
+        "abacate_geada",
+        "abacate_brede",
+        "abacate_margarida",
+        "manga_tommy",
+        "manga_maca",
+        "manga_palmer",
+        "mel",
+        "limao_tahiti",
+      ],
       reception_status: ["pending", "approved", "rejected"],
       transaction_status: ["previsto", "realizado", "cancelado"],
       user_role: ["admin", "operator", "supervisor"],

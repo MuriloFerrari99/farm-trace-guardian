@@ -13,7 +13,7 @@ const translations = {
     expedition: 'Expedição',
     reports: 'Relatórios',
     producers: 'Produtores',
-    compliance: 'Conformidade',
+    
     welcome: 'Bem-vindo',
     certified: 'Certificado',
     totalProducers: 'Total de Produtores',
@@ -36,7 +36,7 @@ const translations = {
     expedition: 'Expedition',
     reports: 'Reports',
     producers: 'Producers',
-    compliance: 'Compliance',
+    
     welcome: 'Welcome',
     certified: 'Certified',
     totalProducers: 'Total Producers',

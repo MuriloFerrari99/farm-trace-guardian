@@ -65,7 +65,6 @@ const Sidebar = () => {
 
   const otherMenuItems = [
     { path: '/producers', icon: Users, key: 'producers' },
-    { path: '/compliance', icon: Shield, key: 'compliance' },
   ];
 
   return (

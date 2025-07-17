@@ -24,7 +24,7 @@ import { CheckSquare, Camera, Thermometer, Package } from 'lucide-react';
 const checklistSchema = z.object({
   reception_id: z.string().min(1, 'Recebimento é obrigatório'),
   location_id: z.string().min(1, 'Localização é obrigatória'),
-  temperature_ambient: z.number().min(-50).max(60),
+  temperature_ambient: z.number().min(-50).max(60).optional(),
   pallet_integrity: z.boolean(),
   visual_separation_confirmed: z.boolean(),
   third_party_document: z.string().optional(),
@@ -46,7 +46,7 @@ const StorageChecklist = () => {
     defaultValues: {
       reception_id: '',
       location_id: '',
-      temperature_ambient: 20,
+      temperature_ambient: undefined,
       pallet_integrity: false,
       visual_separation_confirmed: false,
       third_party_document: '',
@@ -60,7 +60,7 @@ const StorageChecklist = () => {
     const checklistData = {
       reception_id: data.reception_id,
       location_id: data.location_id,
-      temperature_ambient: data.temperature_ambient,
+      temperature_ambient: data.temperature_ambient || null,
       pallet_integrity: data.pallet_integrity,
       visual_separation_confirmed: data.visual_separation_confirmed,
       third_party_document: data.third_party_document || null,
@@ -165,14 +165,17 @@ const StorageChecklist = () => {
                 name="temperature_ambient"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Temperatura Ambiente (°C) *</FormLabel>
+                    <FormLabel>Temperatura Ambiente (°C)</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
                         step="0.1"
                         placeholder="Ex: 20.5"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        value={field.value ?? ''}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          field.onChange(value === '' ? undefined : parseFloat(value));
+                        }}
                       />
                     </FormControl>
                     <FormMessage />

@@ -18,6 +18,7 @@ import {
 import { useCreateLotMovement, useStorageLocations } from '@/hooks/useStorage';
 import { useReceptions } from '@/hooks/useReceptions';
 import { useAuthContext } from '@/contexts/AuthContext';
+import AddLocationModal from './AddLocationModal';
 import { QrCode, MoveRight } from 'lucide-react';
 
 const movementSchema = z.object({
@@ -180,11 +181,14 @@ const LotMovementForm = () => {
                 name="to_location_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      {form.watch('movement_type') === 'exit' 
-                        ? 'Localização Atual' 
-                        : 'Localização de Destino'} *
-                    </FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>
+                        {form.watch('movement_type') === 'exit' 
+                          ? 'Localização Atual' 
+                          : 'Localização de Destino'} *
+                      </FormLabel>
+                      <AddLocationModal />
+                    </div>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>

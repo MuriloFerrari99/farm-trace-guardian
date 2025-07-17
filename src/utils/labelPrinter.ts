@@ -8,12 +8,14 @@ export interface LabelData {
   producerName: string;
   quantity: number;
   receptionDate: string;
+  receptionId: string;
 }
 
 export const generateLabelPDF = async (labelData: LabelData): Promise<void> => {
   try {
-    // Generate QR code data URL
-    const qrCodeDataURL = await QRCode.toDataURL(labelData.labelCode, {
+    // Generate QR code with URL to reception details
+    const qrCodeUrl = `${window.location.origin}/reception/details/${labelData.receptionId}`;
+    const qrCodeDataURL = await QRCode.toDataURL(qrCodeUrl, {
       width: 100,
       margin: 1,
     });
