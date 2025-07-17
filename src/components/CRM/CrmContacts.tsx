@@ -7,11 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import ContactDetailModal from './ContactDetailModal';
+import ContactEditModal from './ContactEditModal';
+import { useDeleteContact } from '@/hooks/useCrmContacts';
 
 const CrmContacts = () => {
   const [showNewContact, setShowNewContact] = useState(false);
@@ -19,6 +23,10 @@ const CrmContacts = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterSegment, setFilterSegment] = useState('all');
   const [selectedContact, setSelectedContact] = useState<any>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<any>(null);
   const [newContact, setNewContact] = useState({
     company_name: '',
     contact_name: '',
@@ -35,6 +43,7 @@ const CrmContacts = () => {
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const deleteContactMutation = useDeleteContact();
 
   const { data: contacts, isLoading } = useQuery({
     queryKey: ['crm-contacts', searchTerm, filterStatus, filterSegment],
@@ -149,6 +158,29 @@ const CrmContacts = () => {
       outros: 'Outros'
     };
     return segmentMap[segment as keyof typeof segmentMap] || segment;
+  };
+
+  const handleViewContact = (contact: any) => {
+    setSelectedContact(contact);
+    setShowDetailModal(true);
+  };
+
+  const handleEditContact = (contact: any) => {
+    setSelectedContact(contact);
+    setShowEditModal(true);
+  };
+
+  const handleDeleteContact = (contact: any) => {
+    setContactToDelete(contact);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    if (contactToDelete) {
+      deleteContactMutation.mutate(contactToDelete.id);
+      setShowDeleteDialog(false);
+      setContactToDelete(null);
+    }
   };
 
   return (
@@ -386,13 +418,26 @@ const CrmContacts = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleViewContact(contact)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditContact(contact)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => handleDeleteContact(contact)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -412,6 +457,51 @@ const CrmContacts = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Contact Detail Modal */}
+      <ContactDetailModal
+        contact={selectedContact}
+        open={showDetailModal}
+        onOpenChange={setShowDetailModal}
+        onEdit={() => {
+          setShowDetailModal(false);
+          setShowEditModal(true);
+        }}
+        onDelete={() => {
+          setShowDetailModal(false);
+          handleDeleteContact(selectedContact);
+        }}
+      />
+
+      {/* Contact Edit Modal */}
+      <ContactEditModal
+        contact={selectedContact}
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o contato "{contactToDelete?.company_name}"? 
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteContactMutation.isPending}
+            >
+              {deleteContactMutation.isPending ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
