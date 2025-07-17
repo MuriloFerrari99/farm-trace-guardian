@@ -75,7 +75,7 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
     exporter_contact: 'murilo@pedoce.com.br',
     exporter_email: 'murilo@pedoce.com.br',
     notes: '',
-    shipping_format: 'Caixas plásticas de 10kg: 120 caixas por pallet, 20 pallets por Container',
+    shipping_format: 'A mercadoria será acondicionada em caixas plásticas ventiladas com capacidade de 10 kg, padronizadas para transporte internacional. Cada pallet conterá 120 caixas, totalizando 1.200 kg por pallet. Sendo enviado através de um Reefer 40 pés com temperaturas e outras variáveis controladas.',
     co2_range_min: 3,
     co2_range_max: 10,
     o2_range_min: 2,
@@ -87,16 +87,13 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
   });
 
   const [calculations, setCalculations] = useState({
-    totalPackages: 0,
     totalValue: 0,
     totalValueBRL: 0,
-    finalValue: 0,
-    pricePerPackage: 0
+    finalValue: 0
   });
 
   // Calculate values when form data changes
   useEffect(() => {
-    const totalPackages = Math.ceil(formData.total_weight_kg / formData.package_weight_kg) || 0;
     const totalValue = formData.total_weight_kg * formData.unit_price;
     const totalValueBRL = totalValue * formData.exchange_rate;
     
@@ -108,14 +105,10 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
       finalValue += formData.insurance_cost;
     }
 
-    const pricePerPackage = totalPackages > 0 ? totalValue / totalPackages : 0;
-
     setCalculations({
-      totalPackages,
       totalValue,
       totalValueBRL,
-      finalValue,
-      pricePerPackage
+      finalValue
     });
   }, [formData]);
 
@@ -492,13 +485,7 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-primary">
-                {calculations.totalPackages.toLocaleString()}
-              </div>
-              <div className="text-sm text-muted-foreground">Total de Embalagens</div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold text-primary">
                 {formData.currency} {calculations.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
