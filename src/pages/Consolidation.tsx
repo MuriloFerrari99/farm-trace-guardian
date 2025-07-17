@@ -34,7 +34,6 @@ const Consolidation = () => {
 
         <TabsContent value="consolidation" className="space-y-6">
           <ConsolidationForm />
-          <ConsolidatedLotsList />
         </TabsContent>
 
         <TabsContent value="labels" className="space-y-6">
@@ -42,10 +41,7 @@ const Consolidation = () => {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-6">
-          <div className="text-center py-8 text-gray-500">
-            <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Histórico de consolidações será implementado</p>
-          </div>
+          <ConsolidatedLotsList />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,12 +6,31 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useConsolidation } from '@/hooks/useConsolidation';
 import { Package, Eye, Calendar, User, Trash2 } from 'lucide-react';
+import ConsolidationDetailModal from './ConsolidationDetailModal';
+import { Database } from '@/integrations/supabase/types';
+
+type ConsolidatedLot = Database['public']['Tables']['consolidated_lots']['Row'] & {
+  consolidated_lot_items: Array<
+    Database['public']['Tables']['consolidated_lot_items']['Row'] & {
+      receptions: Database['public']['Tables']['receptions']['Row'] & {
+        producers: Database['public']['Tables']['producers']['Row'];
+      };
+    }
+  >;
+};
 
 const ConsolidatedLotsList = () => {
   const { consolidatedLots, isLoading, deleteConsolidation } = useConsolidation();
+  const [selectedConsolidation, setSelectedConsolidation] = useState<ConsolidatedLot | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
 
   const handleDelete = async (consolidationId: string) => {
     await deleteConsolidation.mutateAsync(consolidationId);
+  };
+
+  const handleViewDetails = (consolidation: ConsolidatedLot) => {
+    setSelectedConsolidation(consolidation);
+    setDetailModalOpen(true);
   };
 
   if (isLoading) {
@@ -110,7 +129,11 @@ const ConsolidatedLotsList = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleViewDetails(consolidation)}
+                    >
                       <Eye className="h-4 w-4 mr-1" />
                       Detalhes
                     </Button>
@@ -146,6 +169,12 @@ const ConsolidatedLotsList = () => {
           </TableBody>
         </Table>
       </CardContent>
+      
+      <ConsolidationDetailModal
+        open={detailModalOpen}
+        onOpenChange={setDetailModalOpen}
+        consolidation={selectedConsolidation}
+      />
     </Card>
   );
 };

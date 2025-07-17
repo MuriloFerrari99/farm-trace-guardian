@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
@@ -10,22 +9,16 @@ type NewLabel = Database['public']['Tables']['labels']['Insert'];
 export const useLabels = () => {
   const queryClient = useQueryClient();
 
-  const {
-    data: labels,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: labels, isLoading, error } = useQuery({
     queryKey: ['labels'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('labels')
         .select(`
           *,
-          reception:receptions(
-            reception_code,
-            product_type,
-            quantity_kg,
-            producer:producers(name)
+          receptions:reception_id (
+            *,
+            producers (*)
           )
         `)
         .order('created_at', { ascending: false });
@@ -48,21 +41,23 @@ export const useLabels = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['labels'] });
-      toast.success('Etiqueta criada com sucesso!');
+      toast.success('Rótulo criado com sucesso!');
     },
     onError: (error) => {
       console.error('Error creating label:', error);
-      toast.error('Erro ao criar etiqueta');
+      toast.error('Erro ao criar rótulo');
     },
   });
 
   const printLabel = useMutation({
     mutationFn: async (id: string) => {
+      const { data: user } = await supabase.auth.getUser();
+      
       const { data, error } = await supabase
         .from('labels')
         .update({
           printed_at: new Date().toISOString(),
-          printed_by: (await supabase.auth.getUser()).data.user?.id
+          printed_by: user.user?.id,
         })
         .eq('id', id)
         .select()
@@ -73,11 +68,11 @@ export const useLabels = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['labels'] });
-      toast.success('Etiqueta impressa com sucesso!');
+      toast.success('Rótulo marcado como impresso!');
     },
     onError: (error) => {
-      console.error('Error printing label:', error);
-      toast.error('Erro ao imprimir etiqueta');
+      console.error('Error updating label:', error);
+      toast.error('Erro ao atualizar rótulo');
     },
   });
 
@@ -101,11 +96,11 @@ export const useLabels = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['labels'] });
-      toast.success('Etiqueta atualizada com sucesso!');
+      toast.success('Rótulo atualizado com sucesso!');
     },
     onError: (error) => {
       console.error('Error updating label:', error);
-      toast.error('Erro ao atualizar etiqueta');
+      toast.error('Erro ao atualizar rótulo');
     },
   });
 
@@ -117,14 +112,15 @@ export const useLabels = () => {
         .eq('id', id);
 
       if (error) throw error;
+      return id;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['labels'] });
-      toast.success('Etiqueta deletada com sucesso!');
+      toast.success('Rótulo excluído com sucesso!');
     },
     onError: (error) => {
       console.error('Error deleting label:', error);
-      toast.error('Erro ao deletar etiqueta');
+      toast.error('Erro ao excluir rótulo');
     },
   });
 
