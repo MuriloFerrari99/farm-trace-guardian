@@ -7,8 +7,11 @@ import { Building, User, Mail, Phone, MapPin, Calendar, Edit, Trash2, Plus } fro
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useCrmInteractions } from '@/hooks/useCrmInteractions';
+import { useCrmTasks } from '@/hooks/useCrmTasks';
 import InteractionTimeline from './InteractionTimeline';
 import NewInteractionModal from './NewInteractionModal';
+import NewTaskModal from './NewTaskModal';
+import TaskList from './TaskList';
 
 interface ContactDetailModalProps {
   contact: any;
@@ -26,7 +29,16 @@ const ContactDetailModal = ({
   onDelete 
 }: ContactDetailModalProps) => {
   const [showNewInteraction, setShowNewInteraction] = useState(false);
+  const [showNewTask, setShowNewTask] = useState(false);
   const { interactions, isLoading, createInteraction, isCreating } = useCrmInteractions(contact?.id);
+  const { 
+    tasks, 
+    isLoading: isLoadingTasks, 
+    createTask, 
+    updateTask, 
+    deleteTask,
+    isCreating: isCreatingTask 
+  } = useCrmTasks({ contactId: contact?.id });
 
   if (!contact) return null;
 
@@ -58,6 +70,22 @@ const ContactDetailModal = ({
       contact_id: contact.id
     });
     setShowNewInteraction(false);
+  };
+
+  const handleCreateTask = (data: any) => {
+    createTask({
+      ...data,
+      contact_id: contact.id
+    });
+    setShowNewTask(false);
+  };
+
+  const handleCompleteTask = (taskId: string) => {
+    updateTask({ 
+      id: taskId, 
+      status: 'concluida', 
+      completed_at: new Date().toISOString() 
+    });
   };
 
   return (
@@ -177,6 +205,30 @@ const ContactDetailModal = ({
 
           <Separator />
 
+          {/* Tarefas Relacionadas */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Tarefas</h3>
+              <Button 
+                onClick={() => setShowNewTask(true)}
+                size="sm"
+                variant="outline"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Tarefa
+              </Button>
+            </div>
+            <TaskList 
+              tasks={tasks?.filter(task => task.contact_id === contact.id) || []} 
+              isLoading={isLoadingTasks}
+              onCompleteTask={handleCompleteTask}
+              onDeleteTask={deleteTask}
+              showCompactView
+            />
+          </div>
+
+          <Separator />
+
           {/* Timeline de Interações */}
           <div>
             <div className="flex items-center justify-between mb-4">
@@ -195,6 +247,15 @@ const ContactDetailModal = ({
             />
           </div>
         </div>
+
+        {/* New Task Modal */}
+        <NewTaskModal
+          open={showNewTask}
+          onOpenChange={setShowNewTask}
+          onSubmit={handleCreateTask}
+          isSubmitting={isCreatingTask}
+          contactId={contact.id}
+        />
 
         {/* New Interaction Modal */}
         <NewInteractionModal

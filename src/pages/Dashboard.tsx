@@ -4,6 +4,7 @@ import { Users, Package, AlertTriangle, TrendingUp } from 'lucide-react';
 import StatsCard from '../components/Dashboard/StatsCard';
 import RecentActivity from '../components/Dashboard/RecentActivity';
 import QuickActions from '../components/Dashboard/QuickActions';
+import TaskNotifications from '../components/CRM/TaskNotifications';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Dashboard = () => {
@@ -51,7 +52,8 @@ const Dashboard = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity - Takes 2 columns */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
+          <TaskNotifications />
           <RecentActivity />
         </div>
 

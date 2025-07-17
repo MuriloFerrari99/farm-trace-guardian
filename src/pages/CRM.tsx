@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Users, Phone, Target, BarChart3, FileText, PlusCircle } from 'lucide-react';
+import { Users, Phone, Target, BarChart3, FileText, PlusCircle, Calendar } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CrmContacts from '@/components/CRM/CrmContacts';
 import CrmSalesFunnel from '@/components/CRM/CrmSalesFunnel';
 import CrmDashboard from '@/components/CRM/CrmDashboard';
-
 import CrmInteractions from '@/components/CRM/CrmInteractions';
+import CrmScheduling from '@/components/CRM/CrmScheduling';
 
 const CRM = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,7 +14,7 @@ const CRM = () => {
 
   React.useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['dashboard', 'contacts', 'interactions', 'funnel'].includes(tab)) {
+    if (tab && ['dashboard', 'contacts', 'interactions', 'funnel', 'scheduling'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -35,7 +35,7 @@ const CRM = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Dashboard
@@ -51,6 +51,10 @@ const CRM = () => {
           <TabsTrigger value="funnel" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
             Funil de Vendas
+          </TabsTrigger>
+          <TabsTrigger value="scheduling" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Agendamento
           </TabsTrigger>
         </TabsList>
 
@@ -68,6 +72,10 @@ const CRM = () => {
 
         <TabsContent value="funnel">
           <CrmSalesFunnel />
+        </TabsContent>
+
+        <TabsContent value="scheduling">
+          <CrmScheduling />
         </TabsContent>
 
       </Tabs>

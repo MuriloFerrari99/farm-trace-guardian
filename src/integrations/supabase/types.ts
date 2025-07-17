@@ -862,6 +862,92 @@ export type Database = {
           },
         ]
       }
+      crm_tasks: {
+        Row: {
+          assigned_to: string
+          completed_at: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string
+          google_calendar_event_id: string | null
+          id: string
+          opportunity_id: string | null
+          reminder_date: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          task_type: Database["public"]["Enums"]["task_type"]
+          title: string
+          updated_at: string
+          whatsapp_reminder_sent: boolean | null
+        }
+        Insert: {
+          assigned_to: string
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date: string
+          google_calendar_event_id?: string | null
+          id?: string
+          opportunity_id?: string | null
+          reminder_date?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          task_type?: Database["public"]["Enums"]["task_type"]
+          title: string
+          updated_at?: string
+          whatsapp_reminder_sent?: boolean | null
+        }
+        Update: {
+          assigned_to?: string
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string
+          google_calendar_event_id?: string | null
+          id?: string
+          opportunity_id?: string | null
+          reminder_date?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          task_type?: Database["public"]["Enums"]["task_type"]
+          title?: string
+          updated_at?: string
+          whatsapp_reminder_sent?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       current_lot_positions: {
         Row: {
           current_location_id: string
@@ -2087,6 +2173,15 @@ export type Database = {
         | "mel"
         | "limao_tahiti"
       reception_status: "pending" | "approved" | "rejected"
+      task_status: "pendente" | "em_andamento" | "concluida" | "cancelada"
+      task_type:
+        | "ligacao"
+        | "reuniao"
+        | "email"
+        | "follow_up"
+        | "proposta"
+        | "visita"
+        | "outros"
       transaction_status: "previsto" | "realizado" | "cancelado"
       user_role: "admin" | "operator" | "supervisor"
     }
@@ -2315,6 +2410,16 @@ export const Constants = {
         "limao_tahiti",
       ],
       reception_status: ["pending", "approved", "rejected"],
+      task_status: ["pendente", "em_andamento", "concluida", "cancelada"],
+      task_type: [
+        "ligacao",
+        "reuniao",
+        "email",
+        "follow_up",
+        "proposta",
+        "visita",
+        "outros",
+      ],
       transaction_status: ["previsto", "realizado", "cancelado"],
       user_role: ["admin", "operator", "supervisor"],
     },
