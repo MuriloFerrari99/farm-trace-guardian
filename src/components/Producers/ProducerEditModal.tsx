@@ -1,62 +1,83 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { useCreateProducer } from '@/hooks/useProducers';
+import { Textarea } from '@/components/ui/textarea';
+import { useUpdateProducer } from '@/hooks/useProducers';
 import { Database } from '@/integrations/supabase/types';
 
-type ProducerInsert = Database['public']['Tables']['producers']['Insert'];
+type Producer = Database['public']['Tables']['producers']['Row'];
+type ProducerUpdate = Database['public']['Tables']['producers']['Update'];
 
 const producerSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
+  name: z.string().min(1, "Nome é obrigatório"),
   ggn: z.string().optional(),
   certificate_number: z.string().optional(),
-  certificate_expiry: z.string().min(1, 'Data de validade é obrigatória'),
+  certificate_expiry: z.string().min(1, "Data de vencimento do certificado é obrigatória"),
   farm_name: z.string().optional(),
   fruit_varieties: z.string().optional(),
   production_volume_tons: z.string().optional(),
-  additional_notes: z.string().optional(),
-  address: z.string().optional(),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
   phone: z.string().optional(),
-  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  address: z.string().optional(),
+  additional_notes: z.string().optional(),
 });
 
 type ProducerFormData = z.infer<typeof producerSchema>;
 
-export const ProducerForm = () => {
-  const createProducer = useCreateProducer();
+interface ProducerEditModalProps {
+  producer: Producer | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
+export const ProducerEditModal = ({ producer, open, onOpenChange }: ProducerEditModalProps) => {
+  const updateProducer = useUpdateProducer();
+  
   const form = useForm<ProducerFormData>({
     resolver: zodResolver(producerSchema),
     defaultValues: {
-      name: '',
-      ggn: '',
-      certificate_number: '',
-      certificate_expiry: '',
-      farm_name: '',
-      fruit_varieties: '',
-      production_volume_tons: '',
-      additional_notes: '',
-      address: '',
-      phone: '',
-      email: '',
+      name: "",
+      ggn: "",
+      certificate_number: "",
+      certificate_expiry: "",
+      farm_name: "",
+      fruit_varieties: "",
+      production_volume_tons: "",
+      email: "",
+      phone: "",
+      address: "",
+      additional_notes: "",
     },
   });
 
+  // Update form values when producer changes
+  React.useEffect(() => {
+    if (producer) {
+      form.reset({
+        name: producer.name || "",
+        ggn: producer.ggn || "",
+        certificate_number: producer.certificate_number || "",
+        certificate_expiry: producer.certificate_expiry || "",
+        farm_name: producer.farm_name || "",
+        fruit_varieties: producer.fruit_varieties || "",
+        production_volume_tons: producer.production_volume_tons?.toString() || "",
+        email: producer.email || "",
+        phone: producer.phone || "",
+        address: producer.address || "",
+        additional_notes: producer.additional_notes || "",
+      });
+    }
+  }, [producer, form]);
+
   const onSubmit = async (data: ProducerFormData) => {
-    const producerData: ProducerInsert = {
+    if (!producer) return;
+
+    const producerData: ProducerUpdate = {
       name: data.name,
       ggn: data.ggn || null,
       certificate_number: data.certificate_number || null,
@@ -64,36 +85,40 @@ export const ProducerForm = () => {
       farm_name: data.farm_name || null,
       fruit_varieties: data.fruit_varieties || null,
       production_volume_tons: data.production_volume_tons ? parseFloat(data.production_volume_tons) : null,
-      additional_notes: data.additional_notes || null,
       email: data.email || null,
-      address: data.address || null,
       phone: data.phone || null,
+      address: data.address || null,
+      additional_notes: data.additional_notes || null,
     };
 
-    createProducer.mutate(producerData, {
-      onSuccess: () => {
-        form.reset();
-      },
-    });
+    try {
+      await updateProducer.mutateAsync({ id: producer.id, ...producerData });
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error updating producer:', error);
+    }
   };
 
+  if (!producer) return null;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Cadastrar Novo Produtor</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Editar Produtor</DialogTitle>
+        </DialogHeader>
+        
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome *</FormLabel>
+                    <FormLabel>Nome do Produtor *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome do produtor" {...field} />
+                      <Input placeholder="Nome completo" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -105,9 +130,9 @@ export const ProducerForm = () => {
                 name="ggn"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>GGN</FormLabel>
+                    <FormLabel>Número GGN</FormLabel>
                     <FormControl>
-                      <Input placeholder="Número GGN" {...field} />
+                      <Input placeholder="Ex: 4049928100001" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -119,9 +144,9 @@ export const ProducerForm = () => {
                 name="certificate_number"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Qual Certificado o produtor possui</FormLabel>
+                    <FormLabel>Número do Certificado</FormLabel>
                     <FormControl>
-                      <Input placeholder="Número do certificado" {...field} />
+                      <Input placeholder="Ex: GGN-001-123456" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,7 +158,7 @@ export const ProducerForm = () => {
                 name="certificate_expiry"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Validade do Certificado *</FormLabel>
+                    <FormLabel>Vencimento do Certificado *</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -144,42 +169,12 @@ export const ProducerForm = () => {
 
               <FormField
                 control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Telefone</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Telefone" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="Email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
                 name="farm_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nome da Fazenda</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome da fazenda" {...field} />
+                      <Input placeholder="Ex: Fazenda São José" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -191,9 +186,9 @@ export const ProducerForm = () => {
                 name="fruit_varieties"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Variedades de frutas produzidas</FormLabel>
+                    <FormLabel>Variedades de Frutas</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Tomate, Alface, Pepino" {...field} />
+                      <Input placeholder="Ex: Manga Palmer, Tommy Atkins" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -218,6 +213,34 @@ export const ProducerForm = () => {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="email@exemplo.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefone</FormLabel>
+                    <FormControl>
+                      <Input placeholder="(11) 99999-9999" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <FormField
@@ -227,7 +250,7 @@ export const ProducerForm = () => {
                 <FormItem>
                   <FormLabel>Endereço</FormLabel>
                   <FormControl>
-                    <Input placeholder="Endereço completo" {...field} />
+                    <Textarea placeholder="Endereço completo da fazenda" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -239,25 +262,36 @@ export const ProducerForm = () => {
               name="additional_notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Observações adicionais</FormLabel>
+                  <FormLabel>Observações Adicionais</FormLabel>
                   <FormControl>
-                    <Input placeholder="Observações sobre o produtor" {...field} />
+                    <Textarea 
+                      placeholder="Informações adicionais sobre o produtor"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Button 
-              type="submit" 
-              disabled={createProducer.isPending}
-              className="w-full md:w-auto"
-            >
-              {createProducer.isPending ? 'Cadastrando...' : 'Cadastrar Produtor'}
-            </Button>
+            <div className="flex justify-end space-x-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={updateProducer.isPending}
+              >
+                {updateProducer.isPending ? "Salvando..." : "Salvar"}
+              </Button>
+            </div>
           </form>
         </Form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 };

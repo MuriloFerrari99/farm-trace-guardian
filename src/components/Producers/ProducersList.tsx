@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Edit, Trash2, Phone, Mail, MapPin } from 'lucide-react';
+import { ProducerEditModal } from './ProducerEditModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +35,13 @@ export const ProducersList = () => {
   const { producers, isLoading } = useProducers();
   const deleteProducer = useDeleteProducer();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingProducer, setEditingProducer] = useState<Producer | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const handleEdit = (producer: Producer) => {
+    setEditingProducer(producer);
+    setEditModalOpen(true);
+  };
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
@@ -86,6 +94,7 @@ export const ProducersList = () => {
                   <TableHead>GGN</TableHead>
                   <TableHead>Certificado</TableHead>
                   <TableHead>Validade</TableHead>
+                  <TableHead>Volume (ton/ano)</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Contato</TableHead>
                   <TableHead>Ações</TableHead>
@@ -115,6 +124,12 @@ export const ProducersList = () => {
                         })}
                       </TableCell>
                       <TableCell>
+                        {producer.production_volume_tons ? 
+                          `${producer.production_volume_tons.toLocaleString('pt-BR')} t` : 
+                          'N/A'
+                        }
+                      </TableCell>
+                      <TableCell>
                         <Badge variant={certStatus.variant}>{certStatus.label}</Badge>
                       </TableCell>
                       <TableCell>
@@ -135,7 +150,11 @@ export const ProducersList = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleEdit(producer)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <AlertDialog>
@@ -174,6 +193,15 @@ export const ProducersList = () => {
           </div>
         )}
       </CardContent>
+      
+      <ProducerEditModal
+        producer={editingProducer}
+        open={editModalOpen}
+        onOpenChange={(open) => {
+          setEditModalOpen(open);
+          if (!open) setEditingProducer(null);
+        }}
+      />
     </Card>
   );
 };
