@@ -13,7 +13,8 @@ import {
   Edit3,
   Calendar,
   DollarSign,
-  Package
+  Package,
+  Trash2
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -44,6 +45,7 @@ interface ProposalsListProps {
   onGeneratePDF: (proposalId: string, language: 'pt' | 'en') => void;
   onSend: (proposalId: string) => void;
   onStatusUpdate: (proposalId: string, status: string) => void;
+  onDelete: (proposalId: string) => void;
 }
 
 const ProposalsList: React.FC<ProposalsListProps> = ({
@@ -52,7 +54,8 @@ const ProposalsList: React.FC<ProposalsListProps> = ({
   onEdit,
   onGeneratePDF,
   onSend,
-  onStatusUpdate
+  onStatusUpdate,
+  onDelete
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -221,9 +224,16 @@ const ProposalsList: React.FC<ProposalsListProps> = ({
                             Marcar como Rejeitada
                           </DropdownMenuItem>
                         </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                       )}
+                       <DropdownMenuItem 
+                         onClick={() => onDelete(proposal.id)}
+                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                       >
+                         <Trash2 className="h-4 w-4 mr-2" />
+                         Excluir Proposta
+                       </DropdownMenuItem>
+                     </DropdownMenuContent>
+                   </DropdownMenu>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">

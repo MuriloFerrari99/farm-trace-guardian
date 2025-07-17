@@ -149,6 +149,33 @@ export const useCommercialProposals = () => {
     }
   };
 
+  const deleteProposal = async (proposalId: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('commercial_proposals')
+        .delete()
+        .eq('id', proposalId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Proposta excluída com sucesso!",
+        description: "A proposta foi removida permanentemente",
+      });
+
+      fetchProposals();
+      return true;
+    } catch (error: any) {
+      console.error('Error deleting proposal:', error);
+      toast({
+        title: "Erro ao excluir proposta",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   const getProposalsByContact = (contactId: string) => {
     return proposals.filter(p => p.contact_id === contactId);
   };
@@ -189,6 +216,7 @@ export const useCommercialProposals = () => {
     loading,
     createProposal,
     updateProposal,
+    deleteProposal,
     generateProposalPDF,
     sendProposal,
     getProposalsByContact,

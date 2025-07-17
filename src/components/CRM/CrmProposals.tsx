@@ -16,6 +16,7 @@ const CrmProposals = () => {
     loading,
     createProposal,
     updateProposal,
+    deleteProposal,
     generateProposalPDF: savePDF,
     sendProposal,
     getProposalStats,
@@ -51,6 +52,12 @@ const CrmProposals = () => {
     await updateProposal(proposalId, { status });
   };
 
+  const handleDeleteProposal = async (proposalId: string) => {
+    if (window.confirm('Tem certeza que deseja excluir esta proposta? Esta ação não pode ser desfeita.')) {
+      await deleteProposal(proposalId);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -75,6 +82,7 @@ const CrmProposals = () => {
         onGeneratePDF={handleGeneratePDF}
         onSend={handleSendProposal}
         onStatusUpdate={handleStatusUpdate}
+        onDelete={handleDeleteProposal}
       />
 
       <NewProposalModal

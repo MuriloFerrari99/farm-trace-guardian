@@ -32,12 +32,20 @@ const NewProposalModal: React.FC<NewProposalModalProps> = ({
   const [selectedContactId, setSelectedContactId] = useState<string>(preSelectedContactId || '');
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string>(preSelectedOpportunityId || '');
   const [step, setStep] = useState<'selection' | 'calculator'>('selection');
+  const [useManualClient, setUseManualClient] = useState(false);
+  const [manualClientData, setManualClientData] = useState({
+    company_name: '',
+    contact_name: '',
+    email: ''
+  });
 
   const { contacts } = useCrmContacts();
   const { opportunities } = useCrmOpportunities();
 
   const handleContinue = () => {
-    if (selectedContactId) {
+    if (!useManualClient && selectedContactId) {
+      setStep('calculator');
+    } else if (useManualClient && manualClientData.company_name && manualClientData.contact_name && manualClientData.email) {
       setStep('calculator');
     }
   };
@@ -49,8 +57,11 @@ const NewProposalModal: React.FC<NewProposalModalProps> = ({
   const handleSubmit = (proposalData: any) => {
     onSubmit({
       ...proposalData,
-      contact_id: selectedContactId,
+      contact_id: useManualClient ? null : selectedContactId,
       opportunity_id: selectedOpportunityId === 'none' ? null : selectedOpportunityId,
+      manual_company_name: useManualClient ? manualClientData.company_name : null,
+      manual_contact_name: useManualClient ? manualClientData.contact_name : null,
+      manual_contact_email: useManualClient ? manualClientData.email : null,
     });
   };
 
@@ -70,23 +81,72 @@ const NewProposalModal: React.FC<NewProposalModalProps> = ({
         {step === 'selection' ? (
           <div className="space-y-6 py-4">
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="contact">Cliente *</Label>
-                <Select value={selectedContactId} onValueChange={setSelectedContactId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um cliente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {contacts.map((contact) => (
-                      <SelectItem key={contact.id} value={contact.id}>
-                        {contact.company_name} - {contact.contact_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center space-x-2 mb-4">
+                <input
+                  type="checkbox"
+                  id="use-manual-client"
+                  checked={useManualClient}
+                  onChange={(e) => setUseManualClient(e.target.checked)}
+                  className="rounded border-border"
+                />
+                <Label htmlFor="use-manual-client">Cliente não cadastrado no CRM</Label>
               </div>
 
-              {selectedContactId && (
+              {!useManualClient ? (
+                <div>
+                  <Label htmlFor="contact">Cliente *</Label>
+                  <Select value={selectedContactId} onValueChange={setSelectedContactId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um cliente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {contacts.map((contact) => (
+                        <SelectItem key={contact.id} value={contact.id}>
+                          {contact.company_name} - {contact.contact_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="company-name">Nome da Empresa *</Label>
+                    <input
+                      type="text"
+                      id="company-name"
+                      value={manualClientData.company_name}
+                      onChange={(e) => setManualClientData(prev => ({ ...prev, company_name: e.target.value }))}
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Digite o nome da empresa"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contact-name">Nome do Contato *</Label>
+                    <input
+                      type="text"
+                      id="contact-name"
+                      value={manualClientData.contact_name}
+                      onChange={(e) => setManualClientData(prev => ({ ...prev, contact_name: e.target.value }))}
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Digite o nome do contato"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contact-email">Email do Contato *</Label>
+                    <input
+                      type="email"
+                      id="contact-email"
+                      value={manualClientData.email}
+                      onChange={(e) => setManualClientData(prev => ({ ...prev, email: e.target.value }))}
+                      className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Digite o email do contato"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {(selectedContactId || useManualClient) && (
                 <div>
                   <Label htmlFor="opportunity">Oportunidade (Opcional)</Label>
                   <Select value={selectedOpportunityId} onValueChange={setSelectedOpportunityId}>
@@ -110,7 +170,10 @@ const NewProposalModal: React.FC<NewProposalModalProps> = ({
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleContinue} disabled={!selectedContactId}>
+              <Button 
+                onClick={handleContinue} 
+                disabled={!useManualClient && !selectedContactId || (useManualClient && (!manualClientData.company_name || !manualClientData.contact_name || !manualClientData.email))}
+              >
                 Continuar
               </Button>
             </div>
@@ -122,7 +185,9 @@ const NewProposalModal: React.FC<NewProposalModalProps> = ({
                 ← Voltar
               </Button>
               <div className="text-sm text-muted-foreground">
-                Cliente: {contacts.find(c => c.id === selectedContactId)?.company_name}
+                Cliente: {useManualClient 
+                  ? manualClientData.company_name 
+                  : contacts.find(c => c.id === selectedContactId)?.company_name}
               </div>
             </div>
 

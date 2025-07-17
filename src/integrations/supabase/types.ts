@@ -449,7 +449,10 @@ export type Database = {
       commercial_proposals: {
         Row: {
           certifications: string[] | null
-          contact_id: string
+          co2_range_max: number | null
+          co2_range_min: number | null
+          contact_id: string | null
+          container_sealed: boolean | null
           containers_quantity: number | null
           created_at: string
           created_by: string | null
@@ -465,7 +468,12 @@ export type Database = {
           incoterm: Database["public"]["Enums"]["incoterm_type"]
           insurance_cost: number | null
           language: string
+          manual_company_name: string | null
+          manual_contact_email: string | null
+          manual_contact_name: string | null
           notes: string | null
+          o2_range_max: number | null
+          o2_range_min: number | null
           opportunity_id: string | null
           package_weight_kg: number
           packages_per_container: number
@@ -477,7 +485,10 @@ export type Database = {
           product_name: string
           proposal_number: string
           sent_at: string | null
+          shipping_format: string | null
           status: Database["public"]["Enums"]["proposal_status"]
+          temperature_max: number | null
+          temperature_min: number | null
           total_packages: number | null
           total_value: number | null
           total_value_brl: number | null
@@ -489,7 +500,10 @@ export type Database = {
         }
         Insert: {
           certifications?: string[] | null
-          contact_id: string
+          co2_range_max?: number | null
+          co2_range_min?: number | null
+          contact_id?: string | null
+          container_sealed?: boolean | null
           containers_quantity?: number | null
           created_at?: string
           created_by?: string | null
@@ -505,7 +519,12 @@ export type Database = {
           incoterm?: Database["public"]["Enums"]["incoterm_type"]
           insurance_cost?: number | null
           language?: string
+          manual_company_name?: string | null
+          manual_contact_email?: string | null
+          manual_contact_name?: string | null
           notes?: string | null
+          o2_range_max?: number | null
+          o2_range_min?: number | null
           opportunity_id?: string | null
           package_weight_kg: number
           packages_per_container: number
@@ -517,7 +536,10 @@ export type Database = {
           product_name: string
           proposal_number: string
           sent_at?: string | null
+          shipping_format?: string | null
           status?: Database["public"]["Enums"]["proposal_status"]
+          temperature_max?: number | null
+          temperature_min?: number | null
           total_packages?: number | null
           total_value?: number | null
           total_value_brl?: number | null
@@ -529,7 +551,10 @@ export type Database = {
         }
         Update: {
           certifications?: string[] | null
-          contact_id?: string
+          co2_range_max?: number | null
+          co2_range_min?: number | null
+          contact_id?: string | null
+          container_sealed?: boolean | null
           containers_quantity?: number | null
           created_at?: string
           created_by?: string | null
@@ -545,7 +570,12 @@ export type Database = {
           incoterm?: Database["public"]["Enums"]["incoterm_type"]
           insurance_cost?: number | null
           language?: string
+          manual_company_name?: string | null
+          manual_contact_email?: string | null
+          manual_contact_name?: string | null
           notes?: string | null
+          o2_range_max?: number | null
+          o2_range_min?: number | null
           opportunity_id?: string | null
           package_weight_kg?: number
           packages_per_container?: number
@@ -557,7 +587,10 @@ export type Database = {
           product_name?: string
           proposal_number?: string
           sent_at?: string | null
+          shipping_format?: string | null
           status?: Database["public"]["Enums"]["proposal_status"]
+          temperature_max?: number | null
+          temperature_min?: number | null
           total_packages?: number | null
           total_value?: number | null
           total_value_brl?: number | null
