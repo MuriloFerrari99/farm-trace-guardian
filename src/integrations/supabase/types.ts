@@ -962,6 +962,53 @@ export type Database = {
           },
         ]
       }
+      expedition_documents: {
+        Row: {
+          expedition_code: string
+          file_path: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          name: string
+          status: string
+          type: string
+          upload_date: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          expedition_code: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name: string
+          status?: string
+          type: string
+          upload_date?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          expedition_code?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name?: string
+          status?: string
+          type?: string
+          upload_date?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expedition_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expedition_items: {
         Row: {
           consolidated_lot_id: string | null

@@ -10,21 +10,20 @@ import { useToast } from '@/hooks/use-toast';
 import { useExpeditions } from '@/hooks/useExpeditions';
 import { useExpeditionDocuments } from '@/hooks/useExpeditionDocuments';
 import { FileText, Upload, Download, Eye, Trash2, Package } from 'lucide-react';
-import { useFileUpload } from '@/hooks/useFileUpload';
-
-interface Document {
-  id: string;
-  name: string;
-  type: string;
-  uploadDate: string;
-  size: string;
-  status: 'pending' | 'uploaded' | 'verified';
-}
 
 export default function ExpeditionDocuments() {
   const [selectedExpedition, setSelectedExpedition] = useState<string>('');
   const { expeditions } = useExpeditions();
-  const { documents, loading, addDocument, removeDocument, getRequiredDocuments } = useExpeditionDocuments(selectedExpedition);
+  const { 
+    documents, 
+    loading, 
+    isUploading,
+    uploadDocument, 
+    deleteDocument, 
+    downloadDocument,
+    getDocumentSize,
+    getRequiredDocuments 
+  } = useExpeditionDocuments(selectedExpedition);
 
   const [newDocument, setNewDocument] = useState({
     type: '',
@@ -32,19 +31,6 @@ export default function ExpeditionDocuments() {
   });
 
   const { toast } = useToast();
-  
-  const fileUpload = useFileUpload({
-    bucket: 'expedition-documents',
-    folder: 'expedition-docs',
-    maxSize: 10 * 1024 * 1024, // 10MB
-    allowedTypes: [
-      'application/pdf',
-      'image/jpeg',
-      'image/png',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ]
-  });
 
   const documentTypes = [
     { value: 'invoice', label: 'Nota Fiscal' },
@@ -60,7 +46,7 @@ export default function ExpeditionDocuments() {
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && fileUpload.validateFile(file)) {
+    if (file) {
       setNewDocument(prev => ({ ...prev, file }));
     }
   };
@@ -75,35 +61,19 @@ export default function ExpeditionDocuments() {
       return;
     }
 
-    try {
-      const filePath = await fileUpload.uploadFile(newDocument.file);
-      
-      if (filePath) {
-        addDocument({
-          expedition_code: selectedExpedition,
-          name: newDocument.file.name,
-          type: newDocument.type,
-          uploadDate: new Date().toISOString().split('T')[0],
-          size: `${(newDocument.file.size / 1024).toFixed(0)} KB`,
-          status: 'uploaded'
-        });
-
-        setNewDocument({ type: '', file: null });
-        
-        // Reset file input
-        const fileInput = document.getElementById('document-file') as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
-      }
-    } catch (error) {
-      console.error('Error uploading document:', error);
-    }
+    await uploadDocument(newDocument.file, newDocument.type);
+    setNewDocument({ type: '', file: null });
+    
+    // Reset file input
+    const fileInput = document.getElementById('document-file') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
   };
 
   const handleDelete = (documentId: string) => {
-    removeDocument(documentId);
+    deleteDocument(documentId);
   };
 
-  const getStatusBadge = (status: Document['status']) => {
+  const getStatusBadge = (status: 'pending' | 'uploaded' | 'verified') => {
     switch (status) {
       case 'pending':
         return <Badge variant="secondary">Pendente</Badge>;
@@ -223,11 +193,11 @@ export default function ExpeditionDocuments() {
 
             <Button 
               onClick={handleUpload}
-              disabled={!selectedExpedition || !newDocument.type || !newDocument.file || fileUpload.isUploading}
+              disabled={!selectedExpedition || !newDocument.type || !newDocument.file || isUploading}
               className="w-full md:w-auto"
             >
               <Upload className="h-4 w-4 mr-2" />
-              {fileUpload.isUploading ? `Enviando... ${fileUpload.uploadProgress}%` : 'Carregar Documento'}
+              {isUploading ? 'Enviando...' : 'Carregar Documento'}
             </Button>
           </div>
         </CardContent>
@@ -267,26 +237,34 @@ export default function ExpeditionDocuments() {
                   <TableRow key={document.id}>
                     <TableCell className="font-medium">{document.name}</TableCell>
                     <TableCell>{getDocumentTypeLabel(document.type)}</TableCell>
-                    <TableCell>{new Date(document.uploadDate).toLocaleDateString('pt-BR')}</TableCell>
-                    <TableCell>{document.size}</TableCell>
-                    <TableCell>{getStatusBadge(document.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleDelete(document.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                     <TableCell>{new Date(document.upload_date).toLocaleDateString('pt-BR')}</TableCell>
+                     <TableCell>{getDocumentSize(document.file_size)}</TableCell>
+                     <TableCell>{getStatusBadge(document.status)}</TableCell>
+                     <TableCell>
+                       <div className="flex gap-2">
+                         <Button 
+                           size="sm" 
+                           variant="outline"
+                           onClick={() => downloadDocument(document)}
+                         >
+                           <Eye className="h-4 w-4" />
+                         </Button>
+                         <Button 
+                           size="sm" 
+                           variant="outline"
+                           onClick={() => downloadDocument(document)}
+                         >
+                           <Download className="h-4 w-4" />
+                         </Button>
+                         <Button 
+                           size="sm" 
+                           variant="outline"
+                           onClick={() => handleDelete(document.id)}
+                         >
+                           <Trash2 className="h-4 w-4" />
+                         </Button>
+                       </div>
+                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
