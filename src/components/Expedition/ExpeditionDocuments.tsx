@@ -7,7 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, Upload, Download, Eye, Trash2 } from 'lucide-react';
+import { useExpeditions } from '@/hooks/useExpeditions';
+import { useExpeditionDocuments } from '@/hooks/useExpeditionDocuments';
+import { FileText, Upload, Download, Eye, Trash2, Package } from 'lucide-react';
 import { useFileUpload } from '@/hooks/useFileUpload';
 
 interface Document {
@@ -20,24 +22,9 @@ interface Document {
 }
 
 export default function ExpeditionDocuments() {
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: '1',
-      name: 'Nota Fiscal - NFe 12345',
-      type: 'invoice',
-      uploadDate: '2024-01-15',
-      size: '245 KB',
-      status: 'uploaded'
-    },
-    {
-      id: '2',
-      name: 'Certificado GLOBALG.A.P.',
-      type: 'certificate',
-      uploadDate: '2024-01-15',
-      size: '1.2 MB',
-      status: 'verified'
-    }
-  ]);
+  const [selectedExpedition, setSelectedExpedition] = useState<string>('');
+  const { expeditions } = useExpeditions();
+  const { documents, loading, addDocument, removeDocument, getRequiredDocuments } = useExpeditionDocuments(selectedExpedition);
 
   const [newDocument, setNewDocument] = useState({
     type: '',
@@ -92,16 +79,15 @@ export default function ExpeditionDocuments() {
       const filePath = await fileUpload.uploadFile(newDocument.file);
       
       if (filePath) {
-        const newDoc: Document = {
-          id: Date.now().toString(),
+        addDocument({
+          expedition_code: selectedExpedition,
           name: newDocument.file.name,
           type: newDocument.type,
           uploadDate: new Date().toISOString().split('T')[0],
           size: `${(newDocument.file.size / 1024).toFixed(0)} KB`,
           status: 'uploaded'
-        };
+        });
 
-        setDocuments([...documents, newDoc]);
         setNewDocument({ type: '', file: null });
         
         // Reset file input
@@ -114,11 +100,7 @@ export default function ExpeditionDocuments() {
   };
 
   const handleDelete = (documentId: string) => {
-    setDocuments(documents.filter(doc => doc.id !== documentId));
-    toast({
-      title: "Sucesso",
-      description: "Documento removido com sucesso.",
-    });
+    removeDocument(documentId);
   };
 
   const getStatusBadge = (status: Document['status']) => {
@@ -139,10 +121,54 @@ export default function ExpeditionDocuments() {
     return docType ? docType.label : type;
   };
 
+  const requiredDocuments = getRequiredDocuments();
+
   return (
     <div className="space-y-6">
-      {/* Upload de Documentos */}
+      {/* Seleção de Expedição */}
       <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            Selecionar Expedição
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="expedition-select">Código da Expedição</Label>
+              <Select value={selectedExpedition} onValueChange={setSelectedExpedition}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma expedição" />
+                </SelectTrigger>
+                <SelectContent>
+                  {expeditions?.map((expedition) => (
+                    <SelectItem key={expedition.id} value={expedition.expedition_code}>
+                      {expedition.expedition_code} - {expedition.destination}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {!selectedExpedition && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center text-gray-500">
+              <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p>Selecione uma expedição para gerenciar seus documentos</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {selectedExpedition && (
+        <>
+          {/* Upload de Documentos */}
+          <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
@@ -197,7 +223,7 @@ export default function ExpeditionDocuments() {
 
             <Button 
               onClick={handleUpload}
-              disabled={!newDocument.type || !newDocument.file || fileUpload.isUploading}
+              disabled={!selectedExpedition || !newDocument.type || !newDocument.file || fileUpload.isUploading}
               className="w-full md:w-auto"
             >
               <Upload className="h-4 w-4 mr-2" />
@@ -212,10 +238,10 @@ export default function ExpeditionDocuments() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Documentos da Expedição
+            Documentos da Expedição {selectedExpedition}
           </CardTitle>
           <CardDescription>
-            Documentos carregados e verificados para esta expedição
+            Documentos carregados e verificados para a expedição {selectedExpedition}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -269,30 +295,32 @@ export default function ExpeditionDocuments() {
         </CardContent>
       </Card>
 
-      {/* Documentos Obrigatórios */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Documentos Obrigatórios</CardTitle>
-          <CardDescription>
-            Verifique se todos os documentos necessários foram carregados
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {documentTypes.slice(0, 4).map((docType) => {
-              const hasDocument = documents.some(doc => doc.type === docType.value);
-              return (
-                <div key={docType.value} className="flex items-center justify-between p-3 border rounded-lg">
-                  <span className="text-sm">{docType.label}</span>
-                  <Badge variant={hasDocument ? "default" : "secondary"}>
-                    {hasDocument ? "✓ Carregado" : "Pendente"}
-                  </Badge>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+          {/* Documentos Obrigatórios */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Documentos Obrigatórios - {selectedExpedition}</CardTitle>
+              <CardDescription>
+                Verifique se todos os documentos necessários foram carregados para esta expedição
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {requiredDocuments.map((req, index) => {
+                  const docType = documentTypes.find(dt => dt.value === req.type);
+                  return (
+                    <div key={req.type} className="flex items-center justify-between p-3 border rounded-lg">
+                      <span className="text-sm">{docType?.label || req.type}</span>
+                      <Badge variant={req.hasDocument ? "default" : "secondary"}>
+                        {req.hasDocument ? "✓ Carregado" : "Pendente"}
+                      </Badge>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 }

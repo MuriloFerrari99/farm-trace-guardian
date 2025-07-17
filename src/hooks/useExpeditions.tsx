@@ -65,14 +65,38 @@ export const useExpeditions = () => {
     }
   };
 
+  const generateNextExpeditionCode = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('expeditions')
+        .select('expedition_code')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (error) throw error;
+      
+      const lastCode = data && data.length > 0 ? data[0].expedition_code : '';
+      const match = lastCode.match(/EXP-(\d+)$/);
+      const nextNumber = match ? parseInt(match[1]) + 1 : 1;
+      
+      return `EXP-${String(nextNumber).padStart(3, '0')}`;
+    } catch (error) {
+      console.error('Error generating expedition code:', error);
+      return `EXP-001`;
+    }
+  };
+
   const createExpedition = async (expeditionData: CreateExpeditionData) => {
     setLoading(true);
     try {
+      // Generate automatic expedition code if not provided
+      const expeditionCode = expeditionData.expedition_code || await generateNextExpeditionCode();
+      
       // Create expedition
       const { data: expedition, error: expeditionError } = await supabase
         .from('expeditions')
         .insert({
-          expedition_code: expeditionData.expedition_code,
+          expedition_code: expeditionCode,
           destination: expeditionData.destination,
           expedition_date: expeditionData.expedition_date,
           total_weight_kg: expeditionData.total_weight_kg,
@@ -160,6 +184,7 @@ export const useExpeditions = () => {
     loading,
     createExpedition,
     getAvailableReceptions,
+    generateNextExpeditionCode,
     refetch: fetchExpeditions,
   };
 };

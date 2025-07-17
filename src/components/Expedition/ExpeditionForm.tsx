@@ -43,12 +43,16 @@ export default function ExpeditionForm() {
     documentation_complete: false,
   });
   
-  const { createExpedition, getAvailableReceptions, loading } = useExpeditions();
+  const { createExpedition, getAvailableReceptions, generateNextExpeditionCode, loading } = useExpeditions();
   const { toast } = useToast();
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<ExpeditionFormData>();
 
   useEffect(() => {
     loadAvailableReceptions();
+    // Generate automatic expedition code
+    generateNextExpeditionCode().then(code => {
+      setValue('expedition_code', code);
+    });
   }, []);
 
   const loadAvailableReceptions = async () => {
@@ -364,12 +368,13 @@ export default function ExpeditionForm() {
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="destination">Destino *</Label>
-                <Input
+              <div className="md:col-span-2">
+                <Label htmlFor="destination">Destino Completo *</Label>
+                <Textarea
                   id="destination"
                   {...register('destination', { required: 'Destino é obrigatório' })}
-                  placeholder="Cliente/Endereço de destino"
+                  placeholder="Cidade, Estado, Endereço completo (ex: Porto de Santos, SP - Terminal XYZ, Armazém 123)"
+                  rows={3}
                 />
                 {errors.destination && (
                   <p className="text-red-500 text-sm mt-1">{errors.destination.message}</p>

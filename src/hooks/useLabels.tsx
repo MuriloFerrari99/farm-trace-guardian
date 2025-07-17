@@ -56,6 +56,31 @@ export const useLabels = () => {
     },
   });
 
+  const printLabel = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('labels')
+        .update({
+          printed_at: new Date().toISOString(),
+          printed_by: (await supabase.auth.getUser()).data.user?.id
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['labels'] });
+      toast.success('Etiqueta impressa com sucesso!');
+    },
+    onError: (error) => {
+      console.error('Error printing label:', error);
+      toast.error('Erro ao imprimir etiqueta');
+    },
+  });
+
   const updateLabel = useMutation({
     mutationFn: async ({
       id,
@@ -109,6 +134,7 @@ export const useLabels = () => {
     error,
     createLabel,
     updateLabel,
+    printLabel,
     deleteLabel,
   };
 };

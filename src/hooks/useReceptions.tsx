@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
+import { generateReceptionCode } from '@/utils/codeGenerators';
 
 type Reception = Database['public']['Tables']['receptions']['Row'] & {
   producer: Database['public']['Tables']['producers']['Row'];
@@ -35,9 +36,15 @@ export const useReceptions = () => {
 
   const createReception = useMutation({
     mutationFn: async (newReception: NewReception) => {
+      // Generate automatic reception code if not provided
+      const receptionData = {
+        ...newReception,
+        reception_code: newReception.reception_code || generateReceptionCode()
+      };
+
       const { data, error } = await supabase
         .from('receptions')
-        .insert(newReception)
+        .insert(receptionData)
         .select()
         .single();
 
