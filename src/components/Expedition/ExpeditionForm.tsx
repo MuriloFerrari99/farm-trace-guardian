@@ -47,7 +47,7 @@ export default function ExpeditionForm() {
   
   const { createExpedition, getAvailableReceptions, generateNextExpeditionCode, loading } = useExpeditions();
   const { toast } = useToast();
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<ExpeditionFormData>();
+  const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm<ExpeditionFormData>();
 
   useEffect(() => {
     loadAvailableReceptions();
@@ -127,13 +127,11 @@ export default function ExpeditionForm() {
         })),
       };
 
+      console.log('Creating expedition with data:', expeditionData);
       await createExpedition(expeditionData);
       
-      // Remove expedited lots from available list
-      const expeditedLotIds = selectedLots.map(lot => lot.id);
-      setAvailableReceptions(prev => prev.filter(reception => !expeditedLotIds.includes(reception.id)));
-      
       // Reset form
+      reset();
       setSelectedLots([]);
       setChecklistItems({
         packaging_integrity: false,
@@ -141,6 +139,14 @@ export default function ExpeditionForm() {
         vehicle_condition: false,
         temperature_check: false,
         documentation_complete: false,
+      });
+      
+      // Reload available receptions
+      loadAvailableReceptions();
+      
+      toast({
+        title: "Sucesso",
+        description: "Expedição criada com sucesso!",
       });
     } catch (error) {
       console.error('Error creating expedition:', error);

@@ -25,7 +25,13 @@ const ConsolidationForm = () => {
     setConsolidationCode(generateConsolidationCode());
   }, []);
 
-  const approvedReceptions = receptions?.filter(r => r.status === 'approved') || [];
+  // Filter approved receptions that haven't been consolidated yet
+  const approvedReceptions = receptions?.filter(r => {
+    const isApproved = r.status === 'approved';
+    const notConsolidated = !r.consolidated_lot_items || r.consolidated_lot_items.length === 0;
+    const notExpedited = !r.expedition_items || r.expedition_items.length === 0;
+    return isApproved && notConsolidated && notExpedited;
+  }) || [];
 
   const handleReceptionSelect = (receptionId: string, checked: boolean) => {
     if (checked) {

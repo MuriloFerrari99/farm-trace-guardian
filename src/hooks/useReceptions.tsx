@@ -7,6 +7,8 @@ import { generateReceptionCode } from '@/utils/codeGenerators';
 
 type Reception = Database['public']['Tables']['receptions']['Row'] & {
   producer: Database['public']['Tables']['producers']['Row'];
+  consolidated_lot_items?: Database['public']['Tables']['consolidated_lot_items']['Row'][];
+  expedition_items?: Database['public']['Tables']['expedition_items']['Row'][];
 };
 
 type NewReception = Database['public']['Tables']['receptions']['Insert'];
@@ -25,7 +27,15 @@ export const useReceptions = () => {
         .from('receptions')
         .select(`
           *,
-          producer:producers(*)
+          producer:producers(*),
+          consolidated_lot_items!left (
+            id,
+            consolidated_lot_id
+          ),
+          expedition_items!left (
+            id,
+            expedition_id
+          )
         `)
         .order('created_at', { ascending: false });
 

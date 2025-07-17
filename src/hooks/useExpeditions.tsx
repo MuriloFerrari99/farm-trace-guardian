@@ -157,13 +157,29 @@ export const useExpeditions = () => {
               location_code,
               storage_areas (name)
             )
+          ),
+          consolidated_lot_items!left (
+            id,
+            consolidated_lot_id
+          ),
+          expedition_items!left (
+            id,
+            expedition_id
           )
         `)
         .eq('status', 'approved')
         .order('reception_date', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      // Filter out receptions that have already been consolidated or expedited
+      const availableReceptions = (data || []).filter(reception => {
+        const notConsolidated = !reception.consolidated_lot_items || reception.consolidated_lot_items.length === 0;
+        const notExpedited = !reception.expedition_items || reception.expedition_items.length === 0;
+        return notConsolidated && notExpedited;
+      });
+      
+      return availableReceptions;
     } catch (error) {
       console.error('Error fetching available receptions:', error);
       toast({
