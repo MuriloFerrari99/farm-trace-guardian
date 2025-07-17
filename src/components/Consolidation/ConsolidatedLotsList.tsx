@@ -3,11 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useConsolidation } from '@/hooks/useConsolidation';
-import { Package, Eye, Calendar, User } from 'lucide-react';
+import { Package, Eye, Calendar, User, Trash2 } from 'lucide-react';
 
 const ConsolidatedLotsList = () => {
-  const { consolidatedLots, isLoading } = useConsolidation();
+  const { consolidatedLots, isLoading, deleteConsolidation } = useConsolidation();
+
+  const handleDelete = async (consolidationId: string) => {
+    await deleteConsolidation.mutateAsync(consolidationId);
+  };
 
   if (isLoading) {
     return (
@@ -104,10 +109,37 @@ const ConsolidatedLotsList = () => {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4 mr-1" />
-                    Detalhes
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline">
+                      <Eye className="h-4 w-4 mr-1" />
+                      Detalhes
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="destructive">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir Consolidação</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir a consolidação {consolidation.consolidation_code}? 
+                            Esta ação não pode ser desfeita e os lotes voltarão a estar disponíveis.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => handleDelete(consolidation.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

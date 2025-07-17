@@ -99,10 +99,54 @@ export const useConsolidation = () => {
     },
   });
 
+  const deleteConsolidation = useMutation({
+    mutationFn: async (consolidationId: string) => {
+      // Check if consolidation is already expedited
+      const { data: expeditionItems, error: checkError } = await supabase
+        .from('expedition_items')
+        .select('id')
+        .eq('consolidated_lot_id', consolidationId);
+
+      if (checkError) throw checkError;
+
+      if (expeditionItems && expeditionItems.length > 0) {
+        throw new Error('Esta consolidação já foi expedida e não pode ser excluída');
+      }
+
+      // Delete consolidated lot items first
+      const { error: itemsError } = await supabase
+        .from('consolidated_lot_items')
+        .delete()
+        .eq('consolidated_lot_id', consolidationId);
+
+      if (itemsError) throw itemsError;
+
+      // Delete consolidated lot
+      const { error: consolidationError } = await supabase
+        .from('consolidated_lots')
+        .delete()
+        .eq('id', consolidationId);
+
+      if (consolidationError) throw consolidationError;
+
+      return consolidationId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consolidated-lots'] });
+      queryClient.invalidateQueries({ queryKey: ['receptions'] });
+      toast.success('Consolidação excluída com sucesso!');
+    },
+    onError: (error) => {
+      console.error('Error deleting consolidation:', error);
+      toast.error(error.message || 'Erro ao excluir consolidação');
+    },
+  });
+
   return {
     consolidatedLots,
     isLoading,
     error,
     createConsolidation,
+    deleteConsolidation,
   };
 };
