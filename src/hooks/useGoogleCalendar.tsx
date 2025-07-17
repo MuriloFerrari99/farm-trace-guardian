@@ -37,7 +37,7 @@ export const useGoogleCalendar = () => {
   const connectGoogleCalendar = () => {
     setIsConnecting(true);
     
-    const clientId = 'YOUR_GOOGLE_CLIENT_ID'; // This should come from environment
+    const clientId = '319673023925-4h7nqkf2r1s6hbtev3dg8s2qp3bcs7o4.apps.googleusercontent.com'; // Google OAuth client ID
     const redirectUri = `${window.location.origin}/auth/google/callback`;
     const scope = 'https://www.googleapis.com/auth/calendar';
     

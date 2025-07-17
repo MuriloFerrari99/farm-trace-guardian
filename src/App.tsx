@@ -21,6 +21,7 @@ import Reports from './pages/Reports';
 import Financial from './pages/Financial';
 import CRM from './pages/CRM';
 import ReceptionDetails from './pages/ReceptionDetails';
+import GoogleAuthCallback from './pages/GoogleAuthCallback';
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,7 @@ const AppContent: React.FC = () => {
               <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
               <Route path="/producers" element={<ProtectedRoute><Producers /></ProtectedRoute>} />
               <Route path="/reception/details/:id" element={<ProtectedRoute><ReceptionDetails /></ProtectedRoute>} />
+              <Route path="/auth/google/callback" element={<ProtectedRoute><GoogleAuthCallback /></ProtectedRoute>} />
               
             </Routes>
           </main>
