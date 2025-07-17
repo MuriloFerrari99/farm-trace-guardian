@@ -5,13 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useExpeditions } from '@/hooks/useExpeditions';
 import { useToast } from '@/hooks/use-toast';
-import { Truck, Package, FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Truck, Package, CheckCircle2, User, Calendar } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 
 interface ExpeditionFormData {
@@ -22,21 +21,24 @@ interface ExpeditionFormData {
   expedition_date: string;
   transporter: string;
   vehicle_plate: string;
-  driver_name: string;
-  container_number: string;
-  seal_number: string;
 }
 
-interface SelectedLot extends Tables<'receptions'> {
-  producers: Tables<'producers'>;
-  current_lot_positions: any[];
-  selected_quantity: number;
-  checklist_completed: boolean;
+interface SelectedConsolidation {
+  id: string;
+  consolidation_code: string;
+  client_name: string;
+  product_type: string;
+  total_quantity_kg: number;
+  consolidated_lot_items: Array<{
+    receptions: Tables<'receptions'> & {
+      producers: Tables<'producers'>;
+    };
+  }>;
 }
 
 export default function ExpeditionForm() {
-  const [availableReceptions, setAvailableReceptions] = useState<any[]>([]);
-  const [selectedLots, setSelectedLots] = useState<SelectedLot[]>([]);
+  const [availableConsolidations, setAvailableConsolidations] = useState<any[]>([]);
+  const [selectedConsolidations, setSelectedConsolidations] = useState<SelectedConsolidation[]>([]);
   const [checklistItems, setChecklistItems] = useState({
     packaging_integrity: false,
     weight_verification: false,
@@ -45,50 +47,38 @@ export default function ExpeditionForm() {
     documentation_complete: false,
   });
   
-  const { createExpedition, getAvailableReceptions, generateNextExpeditionCode, loading } = useExpeditions();
+  const { createExpedition, getAvailableConsolidations, generateNextExpeditionCode, loading } = useExpeditions();
   const { toast } = useToast();
-  const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm<ExpeditionFormData>();
+  const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm<ExpeditionFormData>();
 
   useEffect(() => {
-    loadAvailableReceptions();
+    loadAvailableConsolidations();
     // Generate automatic expedition code
     generateNextExpeditionCode().then(code => {
       setValue('expedition_code', code);
     });
   }, []);
 
-  const loadAvailableReceptions = async () => {
-    const receptions = await getAvailableReceptions();
-    setAvailableReceptions(receptions);
+  const loadAvailableConsolidations = async () => {
+    const consolidations = await getAvailableConsolidations();
+    setAvailableConsolidations(consolidations);
   };
 
-  const addLotToExpedition = (reception: any) => {
-    if (selectedLots.find(lot => lot.id === reception.id)) {
+  const addConsolidationToExpedition = (consolidation: any) => {
+    if (selectedConsolidations.find(item => item.id === consolidation.id)) {
       toast({
         title: "Atenção",
-        description: "Este lote já foi adicionado à expedição",
+        description: "Esta consolidação já foi adicionada à expedição",
         variant: "destructive",
       });
       return;
     }
 
-    const newLot: SelectedLot = {
-      ...reception,
-      selected_quantity: reception.quantity_kg,
-      checklist_completed: false,
-    };
-
-    setSelectedLots([...selectedLots, newLot]);
+    setSelectedConsolidations([...selectedConsolidations, consolidation]);
   };
 
-  const removeLotFromExpedition = (lotId: string) => {
-    setSelectedLots(selectedLots.filter(lot => lot.id !== lotId));
-  };
-
-  const updateLotQuantity = (lotId: string, quantity: number) => {
-    setSelectedLots(selectedLots.map(lot => 
-      lot.id === lotId ? { ...lot, selected_quantity: quantity } : lot
-    ));
+  const removeConsolidationFromExpedition = (consolidationId: string) => {
+    setSelectedConsolidations(selectedConsolidations.filter(item => item.id !== consolidationId));
   };
 
   const updateChecklistItem = (item: keyof typeof checklistItems, checked: boolean) => {
@@ -96,14 +86,14 @@ export default function ExpeditionForm() {
   };
 
   const isChecklistComplete = Object.values(checklistItems).every(item => item);
-  const canSubmit = selectedLots.length > 0 && isChecklistComplete;
-  const totalWeight = selectedLots.reduce((sum, lot) => sum + lot.selected_quantity, 0);
+  const canSubmit = selectedConsolidations.length > 0 && isChecklistComplete;
+  const totalWeight = selectedConsolidations.reduce((sum, consolidation) => sum + consolidation.total_quantity_kg, 0);
 
   const onSubmit = async (data: ExpeditionFormData) => {
     if (!canSubmit) {
       toast({
         title: "Validação",
-        description: "Complete o checklist e adicione pelo menos um lote",
+        description: "Complete o checklist e adicione pelo menos uma consolidação",
         variant: "destructive",
       });
       return;
@@ -120,10 +110,8 @@ export default function ExpeditionForm() {
         total_weight_kg: totalWeight,
         transporter: data.transporter,
         vehicle_plate: data.vehicle_plate,
-        items: selectedLots.map(lot => ({
-          reception_id: lot.id,
-          quantity_kg: lot.selected_quantity,
-          lot_reference: lot.lot_number || lot.reception_code,
+        consolidations: selectedConsolidations.map(consolidation => ({
+          consolidated_lot_id: consolidation.id,
         })),
       };
 
@@ -132,7 +120,7 @@ export default function ExpeditionForm() {
       
       // Reset form
       reset();
-      setSelectedLots([]);
+      setSelectedConsolidations([]);
       setChecklistItems({
         packaging_integrity: false,
         weight_verification: false,
@@ -141,8 +129,8 @@ export default function ExpeditionForm() {
         documentation_complete: false,
       });
       
-      // Reload available receptions
-      loadAvailableReceptions();
+      // Reload available consolidations
+      loadAvailableConsolidations();
       
       toast({
         title: "Sucesso",
@@ -151,20 +139,6 @@ export default function ExpeditionForm() {
     } catch (error) {
       console.error('Error creating expedition:', error);
     }
-  };
-
-  const getLotStatus = (reception: any) => {
-    const hasValidCertificate = reception.producers?.certificate_expiry && 
-      new Date(reception.producers.certificate_expiry) > new Date();
-    const isLabeled = reception.labels && reception.labels.length > 0;
-    const isStored = reception.current_lot_positions && reception.current_lot_positions.length > 0;
-
-    return {
-      certified: hasValidCertificate,
-      labeled: isLabeled,
-      stored: isStored,
-      canExpedite: hasValidCertificate && isLabeled && isStored,
-    };
   };
 
   return (
@@ -235,75 +209,91 @@ export default function ExpeditionForm() {
         </CardContent>
       </Card>
 
-      {/* Seleção de Lotes */}
+      {/* Seleção de Consolidações */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            Lotes Disponíveis para Expedição
+            Consolidações Disponíveis para Expedição
           </CardTitle>
+          <CardDescription>
+            Selecione as consolidações que serão enviadas nesta expedição
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Produto</TableHead>
-                <TableHead>Produtor</TableHead>
-                <TableHead>Quantidade (kg)</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Ação</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {availableReceptions.map((reception) => {
-                const status = getLotStatus(reception);
-                return (
-                  <TableRow key={reception.id}>
-                    <TableCell className="font-medium">{reception.reception_code}</TableCell>
-                    <TableCell>{reception.product_type}</TableCell>
-                    <TableCell>{reception.producers?.name}</TableCell>
-                    <TableCell>{reception.quantity_kg}</TableCell>
+          {availableConsolidations.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhuma consolidação disponível para expedição</p>
+              <p className="text-sm mt-1">Crie consolidações primeiro na seção Consolidação</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Código</TableHead>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Produto</TableHead>
+                  <TableHead>Quantidade Total</TableHead>
+                  <TableHead>Lotes Originais</TableHead>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Ação</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {availableConsolidations.map((consolidation) => (
+                  <TableRow key={consolidation.id}>
+                    <TableCell className="font-medium">{consolidation.consolidation_code}</TableCell>
                     <TableCell>
-                      <div className="flex gap-1 flex-wrap">
-                        <Badge variant={status.certified ? "default" : "destructive"}>
-                          {status.certified ? "Certificado" : "Sem Certificado"}
-                        </Badge>
-                        <Badge variant={status.labeled ? "default" : "secondary"}>
-                          {status.labeled ? "Rotulado" : "Não Rotulado"}
-                        </Badge>
-                        <Badge variant={status.stored ? "default" : "secondary"}>
-                          {status.stored ? "Armazenado" : "Não Localizado"}
-                        </Badge>
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-gray-400" />
+                        {consolidation.client_name}
                       </div>
                     </TableCell>
-                     <TableCell>
-                       <Button
-                         size="sm"
-                         onClick={() => addLotToExpedition(reception)}
-                         disabled={!status.canExpedite || selectedLots.some(lot => lot.id === reception.id)}
-                         variant={status.canExpedite ? "default" : "secondary"}
-                       >
-                         {selectedLots.some(lot => lot.id === reception.id) 
-                           ? "Selecionado" 
-                           : status.canExpedite ? "Adicionar" : "Não Disponível"}
-                       </Button>
-                     </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{consolidation.product_type}</Badge>
+                    </TableCell>
+                    <TableCell>{consolidation.total_quantity_kg.toFixed(2)} kg</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">
+                        {consolidation.consolidated_lot_items?.length || 0} lotes
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        {consolidation.consolidation_date 
+                          ? new Date(consolidation.consolidation_date).toLocaleDateString('pt-BR')
+                          : 'N/A'
+                        }
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        onClick={() => addConsolidationToExpedition(consolidation)}
+                        disabled={selectedConsolidations.some(item => item.id === consolidation.id)}
+                      >
+                        {selectedConsolidations.some(item => item.id === consolidation.id) 
+                          ? "Selecionada" 
+                          : "Adicionar"}
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
-      {/* Lotes Selecionados */}
-      {selectedLots.length > 0 && (
+      {/* Consolidações Selecionadas */}
+      {selectedConsolidations.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Lotes na Expedição</CardTitle>
+            <CardTitle>Consolidações na Expedição</CardTitle>
             <CardDescription>
-              Total: {totalWeight.toFixed(2)} kg
+              Total: {totalWeight.toFixed(2)} kg | {selectedConsolidations.length} consolidação(ões) selecionada(s)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -311,33 +301,32 @@ export default function ExpeditionForm() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Código</TableHead>
+                  <TableHead>Cliente</TableHead>
                   <TableHead>Produto</TableHead>
-                  <TableHead>Produtor</TableHead>
                   <TableHead>Quantidade (kg)</TableHead>
+                  <TableHead>Lotes Originais</TableHead>
                   <TableHead>Ação</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {selectedLots.map((lot) => (
-                  <TableRow key={lot.id}>
-                    <TableCell className="font-medium">{lot.reception_code}</TableCell>
-                    <TableCell>{lot.product_type}</TableCell>
-                    <TableCell>{lot.producers?.name}</TableCell>
+                {selectedConsolidations.map((consolidation) => (
+                  <TableRow key={consolidation.id}>
+                    <TableCell className="font-medium">{consolidation.consolidation_code}</TableCell>
+                    <TableCell>{consolidation.client_name}</TableCell>
                     <TableCell>
-                      <Input
-                        type="number"
-                        value={lot.selected_quantity}
-                        onChange={(e) => updateLotQuantity(lot.id, Number(e.target.value))}
-                        max={lot.quantity_kg}
-                        min={0}
-                        className="w-24"
-                      />
+                      <Badge variant="outline">{consolidation.product_type}</Badge>
+                    </TableCell>
+                    <TableCell>{consolidation.total_quantity_kg.toFixed(2)} kg</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">
+                        {consolidation.consolidated_lot_items?.length || 0} lotes
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => removeLotFromExpedition(lot.id)}
+                        onClick={() => removeConsolidationFromExpedition(consolidation.id)}
                       >
                         Remover
                       </Button>
@@ -439,38 +428,40 @@ export default function ExpeditionForm() {
                   placeholder="ABC-1234"
                 />
               </div>
-
-              <div>
-                <Label htmlFor="driver_name">Nome do Motorista</Label>
-                <Input
-                  id="driver_name"
-                  {...register('driver_name')}
-                  placeholder="Nome completo"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="container_number">Número do Contêiner</Label>
-                <Input
-                  id="container_number"
-                  {...register('container_number')}
-                  placeholder="ABCD1234567"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="seal_number">Número do Lacre</Label>
-                <Input
-                  id="seal_number"
-                  {...register('seal_number')}
-                  placeholder="Número do lacre"
-                />
-              </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-6">
-              <Button type="submit" disabled={!canSubmit || loading}>
-                {loading ? "Processando..." : "Criar Expedição"}
+            <div className="flex gap-4 pt-4">
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={!canSubmit || loading}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Criando Expedição...
+                  </>
+                ) : (
+                  'Criar Expedição'
+                )}
+              </Button>
+              
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  reset();
+                  setSelectedConsolidations([]);
+                  setChecklistItems({
+                    packaging_integrity: false,
+                    weight_verification: false,
+                    vehicle_condition: false,
+                    temperature_check: false,
+                    documentation_complete: false,
+                  });
+                }}
+              >
+                Limpar
               </Button>
             </div>
           </form>

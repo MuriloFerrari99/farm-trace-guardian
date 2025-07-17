@@ -22,10 +22,8 @@ interface CreateExpeditionData {
   total_weight_kg: number;
   transporter?: string;
   vehicle_plate?: string;
-  items: {
-    reception_id: string;
-    quantity_kg: number;
-    lot_reference?: string;
+  consolidations: {
+    consolidated_lot_id: string;
   }[];
 }
 
@@ -108,13 +106,12 @@ export const useExpeditions = () => {
 
       if (expeditionError) throw expeditionError;
 
-      // Create expedition items
-      if (expeditionData.items.length > 0) {
-        const items = expeditionData.items.map(item => ({
+      // Create expedition items from consolidations
+      if (expeditionData.consolidations.length > 0) {
+        const items = expeditionData.consolidations.map(consolidation => ({
           expedition_id: expedition.id,
-          reception_id: item.reception_id,
-          quantity_kg: item.quantity_kg,
-          lot_reference: item.lot_reference,
+          consolidated_lot_id: consolidation.consolidated_lot_id,
+          quantity_kg: 0, // Will be calculated from consolidation total
         }));
 
         const { error: itemsError } = await supabase
@@ -144,47 +141,41 @@ export const useExpeditions = () => {
     }
   };
 
-  const getAvailableReceptions = async () => {
+  const getAvailableConsolidations = async () => {
     try {
       const { data, error } = await supabase
-        .from('receptions')
+        .from('consolidated_lots')
         .select(`
           *,
-          producers (*),
-          current_lot_positions (
-            current_location_id,
-            storage_locations (
-              location_code,
-              storage_areas (name)
+          consolidated_lot_items (
+            *,
+            receptions:original_reception_id (
+              *,
+              producers (*)
             )
-          ),
-          consolidated_lot_items!left (
-            id,
-            consolidated_lot_id
           ),
           expedition_items!left (
             id,
             expedition_id
           )
         `)
-        .eq('status', 'approved')
-        .order('reception_date', { ascending: false });
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       
-      // Filter out receptions that have already been consolidated or expedited
-      const availableReceptions = (data || []).filter(reception => {
-        const notConsolidated = !reception.consolidated_lot_items || reception.consolidated_lot_items.length === 0;
-        const notExpedited = !reception.expedition_items || reception.expedition_items.length === 0;
-        return notConsolidated && notExpedited;
+      // Filter out consolidations that have already been expedited
+      const availableConsolidations = (data || []).filter(consolidation => {
+        const notExpedited = !consolidation.expedition_items || consolidation.expedition_items.length === 0;
+        return notExpedited;
       });
       
-      return availableReceptions;
+      return availableConsolidations;
     } catch (error) {
-      console.error('Error fetching available receptions:', error);
+      console.error('Error fetching available consolidations:', error);
       toast({
         title: "Erro",
-        description: "Erro ao carregar lotes disponíveis",
+        description: "Erro ao carregar consolidações disponíveis",
         variant: "destructive",
       });
       return [];
@@ -199,7 +190,7 @@ export const useExpeditions = () => {
     expeditions,
     loading,
     createExpedition,
-    getAvailableReceptions,
+    getAvailableConsolidations,
     generateNextExpeditionCode,
     refetch: fetchExpeditions,
   };

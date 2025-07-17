@@ -964,6 +964,7 @@ export type Database = {
       }
       expedition_items: {
         Row: {
+          consolidated_lot_id: string | null
           expedition_id: string | null
           id: string
           lot_reference: string | null
@@ -971,6 +972,7 @@ export type Database = {
           reception_id: string | null
         }
         Insert: {
+          consolidated_lot_id?: string | null
           expedition_id?: string | null
           id?: string
           lot_reference?: string | null
@@ -978,6 +980,7 @@ export type Database = {
           reception_id?: string | null
         }
         Update: {
+          consolidated_lot_id?: string | null
           expedition_id?: string | null
           id?: string
           lot_reference?: string | null
@@ -985,6 +988,13 @@ export type Database = {
           reception_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "expedition_items_consolidated_lot_id_fkey"
+            columns: ["consolidated_lot_id"]
+            isOneToOne: false
+            referencedRelation: "consolidated_lots"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "expedition_items_expedition_id_fkey"
             columns: ["expedition_id"]
