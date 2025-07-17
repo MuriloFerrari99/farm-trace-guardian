@@ -187,8 +187,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
                 id="unit_price"
                 type="number"
                 step="0.01"
-                value={formData.unit_price}
-                onChange={(e) => handleInputChange('unit_price', parseFloat(e.target.value) || 0)}
+                value={formData.unit_price || ''}
+                onChange={(e) => handleInputChange('unit_price', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                 required
               />
             </div>
@@ -224,8 +224,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
                 id="exchange_rate"
                 type="number"
                 step="0.0001"
-                value={formData.exchange_rate}
-                onChange={(e) => handleInputChange('exchange_rate', parseFloat(e.target.value) || 1)}
+                value={formData.exchange_rate || ''}
+                onChange={(e) => handleInputChange('exchange_rate', e.target.value === '' ? '' : parseFloat(e.target.value) || 1)}
               />
             </div>
           </div>
@@ -244,8 +244,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
               <Input
                 id="delivery_time_days"
                 type="number"
-                value={formData.delivery_time_days}
-                onChange={(e) => handleInputChange('delivery_time_days', parseInt(e.target.value) || 0)}
+                value={formData.delivery_time_days || ''}
+                onChange={(e) => handleInputChange('delivery_time_days', e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
               />
             </div>
             <div>
@@ -253,8 +253,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
               <Input
                 id="validity_days"
                 type="number"
-                value={formData.validity_days}
-                onChange={(e) => handleInputChange('validity_days', parseInt(e.target.value) || 30)}
+                value={formData.validity_days || ''}
+                onChange={(e) => handleInputChange('validity_days', e.target.value === '' ? '' : parseInt(e.target.value) || 30)}
               />
             </div>
           </div>
@@ -277,8 +277,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
                 id="total_weight_kg"
                 type="number"
                 step="0.1"
-                value={formData.total_weight_kg}
-                onChange={(e) => handleInputChange('total_weight_kg', parseFloat(e.target.value) || 0)}
+                value={formData.total_weight_kg || ''}
+                onChange={(e) => handleInputChange('total_weight_kg', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                 required
               />
             </div>
@@ -288,8 +288,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
                 id="package_weight_kg"
                 type="number"
                 step="0.1"
-                value={formData.package_weight_kg}
-                onChange={(e) => handleInputChange('package_weight_kg', parseFloat(e.target.value) || 0)}
+                value={formData.package_weight_kg || ''}
+                onChange={(e) => handleInputChange('package_weight_kg', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                 required
               />
             </div>
@@ -298,8 +298,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
               <Input
                 id="packages_per_container"
                 type="number"
-                value={formData.packages_per_container}
-                onChange={(e) => handleInputChange('packages_per_container', parseInt(e.target.value) || 0)}
+                value={formData.packages_per_container || ''}
+                onChange={(e) => handleInputChange('packages_per_container', e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
                 required
               />
             </div>
@@ -308,8 +308,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
               <Input
                 id="containers_quantity"
                 type="number"
-                value={formData.containers_quantity}
-                onChange={(e) => handleInputChange('containers_quantity', parseInt(e.target.value) || 1)}
+                value={formData.containers_quantity || ''}
+                onChange={(e) => handleInputChange('containers_quantity', e.target.value === '' ? '' : parseInt(e.target.value) || 1)}
               />
             </div>
           </div>
@@ -352,8 +352,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
                   id="freight_cost"
                   type="number"
                   step="0.01"
-                  value={formData.freight_cost}
-                  onChange={(e) => handleInputChange('freight_cost', parseFloat(e.target.value) || 0)}
+                  value={formData.freight_cost || ''}
+                  onChange={(e) => handleInputChange('freight_cost', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                 />
               </div>
               {formData.incoterm === 'CIF' && (
@@ -363,8 +363,8 @@ const ProposalCalculator: React.FC<ProposalCalculatorProps> = ({
                     id="insurance_cost"
                     type="number"
                     step="0.01"
-                    value={formData.insurance_cost}
-                    onChange={(e) => handleInputChange('insurance_cost', parseFloat(e.target.value) || 0)}
+                    value={formData.insurance_cost || ''}
+                    onChange={(e) => handleInputChange('insurance_cost', e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                   />
                 </div>
               )}

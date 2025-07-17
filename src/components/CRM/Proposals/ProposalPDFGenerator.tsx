@@ -95,13 +95,13 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
   const doc = new jsPDF();
   const lang = content[language];
   
-  // Colors
-  const primaryColor: [number, number, number] = [41, 84, 197]; // Blue
+  // Colors - Green theme
+  const primaryColor: [number, number, number] = [34, 139, 34]; // Forest Green
   const textColor: [number, number, number] = [51, 51, 51]; // Dark gray
   const lightGray: [number, number, number] = [240, 240, 240];
   
   // Header
-  doc.setFillColor(41, 84, 197);
+  doc.setFillColor(34, 139, 34); // Green header
   doc.rect(0, 0, 210, 40, 'F');
   
   doc.setTextColor(255, 255, 255);
