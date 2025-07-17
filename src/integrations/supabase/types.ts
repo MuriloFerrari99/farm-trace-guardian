@@ -446,6 +446,151 @@ export type Database = {
           },
         ]
       }
+      commercial_proposals: {
+        Row: {
+          certifications: string[] | null
+          contact_id: string
+          containers_quantity: number | null
+          created_at: string
+          created_by: string | null
+          currency: Database["public"]["Enums"]["proposal_currency"]
+          delivery_time_days: number | null
+          exchange_rate: number | null
+          expires_at: string | null
+          exporter_contact: string
+          exporter_email: string
+          exporter_name: string
+          freight_cost: number | null
+          id: string
+          incoterm: Database["public"]["Enums"]["incoterm_type"]
+          insurance_cost: number | null
+          language: string
+          notes: string | null
+          opportunity_id: string | null
+          package_weight_kg: number
+          packages_per_container: number
+          payment_terms: string | null
+          pdf_file_path: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
+          product_description: string | null
+          product_name: string
+          proposal_number: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["proposal_status"]
+          total_packages: number | null
+          total_value: number | null
+          total_value_brl: number | null
+          total_weight_kg: number
+          unit_price: number
+          unit_price_brl: number | null
+          updated_at: string
+          validity_days: number | null
+        }
+        Insert: {
+          certifications?: string[] | null
+          contact_id: string
+          containers_quantity?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["proposal_currency"]
+          delivery_time_days?: number | null
+          exchange_rate?: number | null
+          expires_at?: string | null
+          exporter_contact: string
+          exporter_email: string
+          exporter_name: string
+          freight_cost?: number | null
+          id?: string
+          incoterm?: Database["public"]["Enums"]["incoterm_type"]
+          insurance_cost?: number | null
+          language?: string
+          notes?: string | null
+          opportunity_id?: string | null
+          package_weight_kg: number
+          packages_per_container: number
+          payment_terms?: string | null
+          pdf_file_path?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
+          product_description?: string | null
+          product_name: string
+          proposal_number: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["proposal_status"]
+          total_packages?: number | null
+          total_value?: number | null
+          total_value_brl?: number | null
+          total_weight_kg: number
+          unit_price: number
+          unit_price_brl?: number | null
+          updated_at?: string
+          validity_days?: number | null
+        }
+        Update: {
+          certifications?: string[] | null
+          contact_id?: string
+          containers_quantity?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["proposal_currency"]
+          delivery_time_days?: number | null
+          exchange_rate?: number | null
+          expires_at?: string | null
+          exporter_contact?: string
+          exporter_email?: string
+          exporter_name?: string
+          freight_cost?: number | null
+          id?: string
+          incoterm?: Database["public"]["Enums"]["incoterm_type"]
+          insurance_cost?: number | null
+          language?: string
+          notes?: string | null
+          opportunity_id?: string | null
+          package_weight_kg?: number
+          packages_per_container?: number
+          payment_terms?: string | null
+          pdf_file_path?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
+          product_description?: string | null
+          product_name?: string
+          proposal_number?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["proposal_status"]
+          total_packages?: number | null
+          total_value?: number | null
+          total_value_brl?: number | null
+          total_weight_kg?: number
+          unit_price?: number
+          unit_price_brl?: number | null
+          updated_at?: string
+          validity_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_proposals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_proposals_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_proposals_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consolidated_lot_items: {
         Row: {
           consolidated_lot_id: string
@@ -2108,6 +2253,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_proposal_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -2156,6 +2305,7 @@ export type Database = {
         | "negociacao"
         | "fechado_ganhou"
         | "fechado_perdeu"
+      incoterm_type: "FOB" | "CFR" | "CIF"
       insurance_type:
         | "transporte"
         | "credito"
@@ -2205,6 +2355,13 @@ export type Database = {
         | "manga_palmer"
         | "mel"
         | "limao_tahiti"
+      proposal_currency: "USD" | "EUR" | "BRL"
+      proposal_status:
+        | "rascunho"
+        | "enviada"
+        | "aceita"
+        | "rejeitada"
+        | "expirada"
       reception_status: "pending" | "approved" | "rejected"
       task_status: "pendente" | "em_andamento" | "concluida" | "cancelada"
       task_type:
@@ -2387,6 +2544,7 @@ export const Constants = {
         "fechado_ganhou",
         "fechado_perdeu",
       ],
+      incoterm_type: ["FOB", "CFR", "CIF"],
       insurance_type: [
         "transporte",
         "credito",
@@ -2441,6 +2599,14 @@ export const Constants = {
         "manga_palmer",
         "mel",
         "limao_tahiti",
+      ],
+      proposal_currency: ["USD", "EUR", "BRL"],
+      proposal_status: [
+        "rascunho",
+        "enviada",
+        "aceita",
+        "rejeitada",
+        "expirada",
       ],
       reception_status: ["pending", "approved", "rejected"],
       task_status: ["pendente", "em_andamento", "concluida", "cancelada"],
