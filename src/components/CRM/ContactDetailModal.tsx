@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Building, User, Mail, Phone, MapPin, Calendar, Edit, Trash2 } from 'lucide-react';
+import { Building, User, Mail, Phone, MapPin, Calendar, Edit, Trash2, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useCrmInteractions } from '@/hooks/useCrmInteractions';
+import InteractionTimeline from './InteractionTimeline';
+import NewInteractionModal from './NewInteractionModal';
 
 interface ContactDetailModalProps {
   contact: any;
@@ -22,6 +25,9 @@ const ContactDetailModal = ({
   onEdit, 
   onDelete 
 }: ContactDetailModalProps) => {
+  const [showNewInteraction, setShowNewInteraction] = useState(false);
+  const { interactions, isLoading, createInteraction, isCreating } = useCrmInteractions(contact?.id);
+
   if (!contact) return null;
 
   const getStatusBadge = (status: string) => {
@@ -44,6 +50,14 @@ const ContactDetailModal = ({
       outros: 'Outros'
     };
     return segmentMap[segment as keyof typeof segmentMap] || segment;
+  };
+
+  const handleCreateInteraction = (data: any) => {
+    createInteraction({
+      ...data,
+      contact_id: contact.id
+    });
+    setShowNewInteraction(false);
   };
 
   return (
@@ -163,17 +177,34 @@ const ContactDetailModal = ({
 
           <Separator />
 
-          {/* Timeline de Interações - Placeholder para futuro */}
+          {/* Timeline de Interações */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Timeline de Interações</h3>
-            <div className="text-center py-8 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">Nenhuma interação registrada ainda.</p>
-              <p className="text-sm text-gray-400 mt-2">
-                As interações aparecerão aqui quando implementadas na Fase 2.
-              </p>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Timeline de Interações</h3>
+              <Button 
+                onClick={() => setShowNewInteraction(true)}
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Interação
+              </Button>
             </div>
+            <InteractionTimeline 
+              interactions={interactions} 
+              isLoading={isLoading}
+            />
           </div>
         </div>
+
+        {/* New Interaction Modal */}
+        <NewInteractionModal
+          open={showNewInteraction}
+          onOpenChange={setShowNewInteraction}
+          onSubmit={handleCreateInteraction}
+          isSubmitting={isCreating}
+          contactId={contact.id}
+          contactName={contact.company_name}
+        />
       </DialogContent>
     </Dialog>
   );
