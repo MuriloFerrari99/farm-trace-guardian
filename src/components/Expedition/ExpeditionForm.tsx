@@ -16,7 +16,9 @@ import type { Tables } from '@/integrations/supabase/types';
 
 interface ExpeditionFormData {
   expedition_code: string;
-  destination: string;
+  destination_city: string;
+  destination_state: string;
+  destination_address: string;
   expedition_date: string;
   transporter: string;
   vehicle_plate: string;
@@ -108,9 +110,12 @@ export default function ExpeditionForm() {
     }
 
     try {
+      // Combine destination fields
+      const fullDestination = `${data.destination_city}, ${data.destination_state} - ${data.destination_address}`;
+      
       const expeditionData = {
         expedition_code: data.expedition_code,
-        destination: data.destination,
+        destination: fullDestination,
         expedition_date: data.expedition_date,
         total_weight_kg: totalWeight,
         transporter: data.transporter,
@@ -123,6 +128,10 @@ export default function ExpeditionForm() {
       };
 
       await createExpedition(expeditionData);
+      
+      // Remove expedited lots from available list
+      const expeditedLotIds = selectedLots.map(lot => lot.id);
+      setAvailableReceptions(prev => prev.filter(reception => !expeditedLotIds.includes(reception.id)));
       
       // Reset form
       setSelectedLots([]);
@@ -262,16 +271,18 @@ export default function ExpeditionForm() {
                         </Badge>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        onClick={() => addLotToExpedition(reception)}
-                        disabled={!status.canExpedite}
-                        variant={status.canExpedite ? "default" : "secondary"}
-                      >
-                        {status.canExpedite ? "Adicionar" : "Não Disponível"}
-                      </Button>
-                    </TableCell>
+                     <TableCell>
+                       <Button
+                         size="sm"
+                         onClick={() => addLotToExpedition(reception)}
+                         disabled={!status.canExpedite || selectedLots.some(lot => lot.id === reception.id)}
+                         variant={status.canExpedite ? "default" : "secondary"}
+                       >
+                         {selectedLots.some(lot => lot.id === reception.id) 
+                           ? "Selecionado" 
+                           : status.canExpedite ? "Adicionar" : "Não Disponível"}
+                       </Button>
+                     </TableCell>
                   </TableRow>
                 );
               })}
@@ -368,16 +379,40 @@ export default function ExpeditionForm() {
                 )}
               </div>
 
-              <div className="md:col-span-2">
-                <Label htmlFor="destination">Destino Completo *</Label>
-                <Textarea
-                  id="destination"
-                  {...register('destination', { required: 'Destino é obrigatório' })}
-                  placeholder="Cidade, Estado, Endereço completo (ex: Porto de Santos, SP - Terminal XYZ, Armazém 123)"
-                  rows={3}
+              <div>
+                <Label htmlFor="destination_city">Cidade *</Label>
+                <Input
+                  id="destination_city"
+                  {...register('destination_city', { required: 'Cidade é obrigatória' })}
+                  placeholder="Ex: Santos"
                 />
-                {errors.destination && (
-                  <p className="text-red-500 text-sm mt-1">{errors.destination.message}</p>
+                {errors.destination_city && (
+                  <p className="text-red-500 text-sm mt-1">{errors.destination_city.message}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="destination_state">Estado *</Label>
+                <Input
+                  id="destination_state"
+                  {...register('destination_state', { required: 'Estado é obrigatório' })}
+                  placeholder="Ex: SP"
+                />
+                {errors.destination_state && (
+                  <p className="text-red-500 text-sm mt-1">{errors.destination_state.message}</p>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <Label htmlFor="destination_address">Destino Final *</Label>
+                <Textarea
+                  id="destination_address"
+                  {...register('destination_address', { required: 'Destino final é obrigatório' })}
+                  placeholder="Endereço completo, terminal, porto, etc. (ex: Porto de Santos - Terminal XYZ, Armazém 123)"
+                  rows={2}
+                />
+                {errors.destination_address && (
+                  <p className="text-red-500 text-sm mt-1">{errors.destination_address.message}</p>
                 )}
               </div>
 

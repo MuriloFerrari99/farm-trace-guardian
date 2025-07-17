@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useReceptions } from '@/hooks/useReceptions';
+import { useConsolidation } from '@/hooks/useConsolidation';
 import { useToast } from '@/hooks/use-toast';
 import { generateConsolidationCode } from '@/utils/codeGenerators';
 import { Merge, Package, User, Calendar } from 'lucide-react';
@@ -16,6 +17,7 @@ const ConsolidationForm = () => {
   const [clientName, setClientName] = useState('');
   const [selectedReceptions, setSelectedReceptions] = useState<string[]>([]);
   const { receptions, isLoading } = useReceptions();
+  const { createConsolidation } = useConsolidation();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,7 +35,7 @@ const ConsolidationForm = () => {
     }
   };
 
-  const handleCreateConsolidation = () => {
+  const handleCreateConsolidation = async () => {
     if (!clientName.trim()) {
       toast({
         title: "Erro",
@@ -57,15 +59,34 @@ const ConsolidationForm = () => {
       return sum + (reception?.quantity_kg || 0);
     }, 0);
 
-    toast({
-      title: "Sucesso",
-      description: `Consolidação ${consolidationCode} criada com ${selectedReceptions.length} lotes (${totalWeight.toFixed(2)} kg)`,
-    });
+    // Get the product type from the first selected reception
+    const firstReception = approvedReceptions.find(r => r.id === selectedReceptions[0]);
+    const productType = firstReception?.product_type || 'outros';
 
-    // Reset form
-    setConsolidationCode(generateConsolidationCode());
-    setClientName('');
-    setSelectedReceptions([]);
+    const consolidationData = {
+      consolidation_code: consolidationCode,
+      client_name: clientName,
+      product_type: productType,
+      total_quantity_kg: totalWeight,
+      items: selectedReceptions.map(id => {
+        const reception = approvedReceptions.find(r => r.id === id);
+        return {
+          original_reception_id: id,
+          quantity_used_kg: reception?.quantity_kg || 0,
+        };
+      }),
+    };
+
+    try {
+      await createConsolidation.mutateAsync(consolidationData);
+      
+      // Reset form
+      setConsolidationCode(generateConsolidationCode());
+      setClientName('');
+      setSelectedReceptions([]);
+    } catch (error) {
+      console.error('Error creating consolidation:', error);
+    }
   };
 
   return (
