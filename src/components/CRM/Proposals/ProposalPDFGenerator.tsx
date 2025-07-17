@@ -50,6 +50,12 @@ interface PDFContent {
     exporterContact: string;
     exporterEmail: string;
     footer: string;
+    additionalCosts: string;
+    freight: string;
+    insurance: string;
+    days: string;
+    yes: string;
+    no: string;
   };
   en: {
     title: string;
@@ -88,6 +94,12 @@ interface PDFContent {
     exporterContact: string;
     exporterEmail: string;
     footer: string;
+    additionalCosts: string;
+    freight: string;
+    insurance: string;
+    days: string;
+    yes: string;
+    no: string;
   };
 }
 
@@ -101,7 +113,7 @@ const content: PDFContent = {
     company: 'Empresa',
     contact: 'Contato',
     email: 'Email',
-    productInfo: 'INFORMAÇÕES DO PRODUTO',
+    productInfo: 'DETALHES DA PROPOSTA',
     productName: 'Produto',
     description: 'Descrição',
     commercialTerms: 'CONDIÇÕES COMERCIAIS',
@@ -115,20 +127,26 @@ const content: PDFContent = {
     paymentTerms: 'Condições de Pagamento',
     deliveryTime: 'Prazo de Entrega',
     validityPeriod: 'Validade da Proposta',
-    volumePackaging: 'VOLUME E EMBALAGEM',
+    volumePackaging: 'FORMATO DE ENVIO',
     shippingFormat: 'Formato de Envio',
-    technicalSpecs: 'ESPECIFICAÇÕES TÉCNICAS DE ENVIO',
+    technicalSpecs: 'ESPECIFICAÇÕES TÉCNICAS',
     co2Range: 'CO₂',
     o2Range: 'O₂',
     temperature: 'Temperatura',
     containerSealed: 'Válvulas e drenos lacrados',
-    certifications: 'Certificações',
-    notes: 'Observações',
+    certifications: 'CERTIFICAÇÕES',
+    notes: 'OBSERVAÇÕES',
     contactInfo: 'INFORMAÇÕES DE CONTATO',
     exporterName: 'Exportador',
     exporterContact: 'Contato',
     exporterEmail: 'Email',
-    footer: 'Esta proposta é válida pelos dias indicados e está sujeita aos termos e condições especificados.'
+    footer: 'Esta proposta é válida pelos dias indicados e está sujeita aos termos e condições especificados.',
+    additionalCosts: 'CUSTOS ADICIONAIS',
+    freight: 'Frete',
+    insurance: 'Seguro',
+    days: 'dias',
+    yes: 'Sim',
+    no: 'Não'
   },
   en: {
     title: 'COMMERCIAL PROPOSAL',
@@ -139,10 +157,10 @@ const content: PDFContent = {
     company: 'Company',
     contact: 'Contact',
     email: 'Email',
-    productInfo: 'PRODUCT INFORMATION',
+    productInfo: 'PROPOSAL DETAILS',
     productName: 'Product',
     description: 'Description',
-    commercialTerms: 'COMMERCIAL TERMS',
+    commercialTerms: 'COMMERCIAL CONDITIONS',
     unitPrice: 'Unit Price',
     totalWeight: 'Total Weight',
     totalValue: 'Total Value',
@@ -153,20 +171,26 @@ const content: PDFContent = {
     paymentTerms: 'Payment Terms',
     deliveryTime: 'Delivery Time',
     validityPeriod: 'Proposal Validity',
-    volumePackaging: 'VOLUME AND PACKAGING',
+    volumePackaging: 'SHIPPING FORMAT',
     shippingFormat: 'Shipping Format',
-    technicalSpecs: 'TECHNICAL SHIPPING SPECIFICATIONS',
+    technicalSpecs: 'TECHNICAL SPECIFICATIONS',
     co2Range: 'CO₂',
     o2Range: 'O₂',
     temperature: 'Temperature',
     containerSealed: 'Sealed valves and drains',
-    certifications: 'Certifications',
-    notes: 'Notes',
+    certifications: 'CERTIFICATIONS',
+    notes: 'OBSERVATIONS',
     contactInfo: 'CONTACT INFORMATION',
     exporterName: 'Exporter',
     exporterContact: 'Contact',
     exporterEmail: 'Email',
-    footer: 'This proposal is valid for the indicated days and is subject to the specified terms and conditions.'
+    footer: 'This proposal is valid for the indicated days and is subject to the specified terms and conditions.',
+    additionalCosts: 'ADDITIONAL COSTS',
+    freight: 'Freight',
+    insurance: 'Insurance',
+    days: 'days',
+    yes: 'Yes',
+    no: 'No'
   }
 };
 
@@ -303,12 +327,12 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
   yPosition = createTable(clientHeaders, clientRows, yPosition);
   
   // Product Details Table
-  const productHeaders = ['DETALHES DA PROPOSTA'];
+  const productHeaders = [t.productInfo];
   const productRows = [
     [`${t.productName}: ${proposal.product_name}`],
-    [`${t.unitPrice}: ${proposal.currency} ${proposal.unit_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/kg`],
-    [`${t.totalWeight}: ${proposal.total_weight_kg.toLocaleString('pt-BR')} kg`],
-    [`${t.totalValue}: ${proposal.currency} ${(proposal.total_value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`]
+    [`${t.unitPrice}: ${proposal.currency} ${proposal.unit_price.toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US', { minimumFractionDigits: 2 })}/kg`],
+    [`${t.totalWeight}: ${proposal.total_weight_kg.toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US')} kg`],
+    [`${t.totalValue}: ${proposal.currency} ${(proposal.total_value || 0).toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US', { minimumFractionDigits: 2 })}`]
   ];
   
   if (proposal.product_description) {
@@ -318,14 +342,14 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
   yPosition = createTable(productHeaders, productRows, yPosition);
   
   // Commercial Conditions Table
-  const commercialHeaders = ['CONDIÇÕES COMERCIAIS'];
+  const commercialHeaders = [t.commercialTerms];
   const commercialRows = [
     [`${t.incoterm}: ${proposal.incoterm}`],
     [`${t.portOfLoading}: ${proposal.port_of_loading || 'N/A'}`],
     [`${t.portOfDischarge}: ${proposal.port_of_discharge || 'N/A'}`],
     [`${t.paymentTerms}: ${proposal.payment_terms || 'N/A'}`],
-    [`${t.deliveryTime}: ${proposal.delivery_time_days || 'N/A'} dias`],
-    [`${t.validityPeriod}: ${proposal.validity_days || 'N/A'} dias`]
+    [`${t.deliveryTime}: ${proposal.delivery_time_days || 'N/A'} ${t.days}`],
+    [`${t.validityPeriod}: ${proposal.validity_days || 'N/A'} ${t.days}`]
   ];
   
   yPosition = createTable(commercialHeaders, commercialRows, yPosition);
@@ -337,33 +361,33 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
   }
   
   // Technical Specifications Table
-  const techHeaders = ['ESPECIFICAÇÕES TÉCNICAS'];
+  const techHeaders = [t.technicalSpecs];
   const techRows = [
     [`${t.co2Range}: ${proposal.co2_range_min || 3}% - ${proposal.co2_range_max || 10}%`],
     [`${t.o2Range}: ${proposal.o2_range_min || 2}% - ${proposal.o2_range_max || 5}%`],
     [`${t.temperature}: ${proposal.temperature_min || 5}°C - ${proposal.temperature_max || 7}°C`],
-    [`${t.containerSealed}: ${proposal.container_sealed ? 'Sim' : 'Não'}`]
+    [`${t.containerSealed}: ${proposal.container_sealed ? t.yes : t.no}`]
   ];
   
   yPosition = createTable(techHeaders, techRows, yPosition);
   
   // Shipping Format
   if (proposal.shipping_format) {
-    const shippingHeaders = ['FORMATO DE ENVIO'];
+    const shippingHeaders = [t.volumePackaging];
     const shippingRows = [[proposal.shipping_format]];
     yPosition = createTable(shippingHeaders, shippingRows, yPosition);
   }
   
   // Additional Costs (if any)
   if (proposal.freight_cost || proposal.insurance_cost) {
-    const costsHeaders = ['CUSTOS ADICIONAIS'];
+    const costsHeaders = [t.additionalCosts];
     const costsRows = [];
     
     if (proposal.freight_cost) {
-      costsRows.push([`Frete: ${proposal.currency} ${proposal.freight_cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`]);
+      costsRows.push([`${t.freight}: ${proposal.currency} ${proposal.freight_cost.toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US', { minimumFractionDigits: 2 })}`]);
     }
     if (proposal.insurance_cost) {
-      costsRows.push([`Seguro: ${proposal.currency} ${proposal.insurance_cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`]);
+      costsRows.push([`${t.insurance}: ${proposal.currency} ${proposal.insurance_cost.toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US', { minimumFractionDigits: 2 })}`]);
     }
     
     yPosition = createTable(costsHeaders, costsRows, yPosition);
@@ -378,13 +402,13 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
   
   // Notes/Observations
   if (proposal.notes) {
-    const notesHeaders = ['OBSERVAÇÕES'];
+    const notesHeaders = [t.notes];
     const notesRows = [[proposal.notes]];
     yPosition = createTable(notesHeaders, notesRows, yPosition);
   }
   
   // Contact Information
-  const contactHeaders = ['INFORMAÇÕES DE CONTATO'];
+  const contactHeaders = [t.contactInfo];
   const contactRows = [
     [`${t.exporterName}: ${proposal.exporter_name}`],
     [`${t.exporterContact}: ${proposal.exporter_contact}`],
