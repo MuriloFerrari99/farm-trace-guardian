@@ -50,7 +50,7 @@ const NewProposalModal: React.FC<NewProposalModalProps> = ({
     onSubmit({
       ...proposalData,
       contact_id: selectedContactId,
-      opportunity_id: selectedOpportunityId || null,
+      opportunity_id: selectedOpportunityId === 'none' ? null : selectedOpportunityId,
     });
   };
 
@@ -94,7 +94,7 @@ const NewProposalModal: React.FC<NewProposalModalProps> = ({
                       <SelectValue placeholder="Selecione uma oportunidade" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Nenhuma oportunidade</SelectItem>
+                      <SelectItem value="none">Nenhuma oportunidade</SelectItem>
                       {filteredOpportunities.map((opportunity) => (
                         <SelectItem key={opportunity.id} value={opportunity.id}>
                           {opportunity.title}
