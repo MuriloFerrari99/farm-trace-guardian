@@ -82,27 +82,31 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
   };
 
   return (
-    <Card className="h-full hover:shadow-md transition-shadow">
+    <Card className="bg-gradient-to-br from-white to-slate-50 hover:shadow-xl hover:scale-105 transition-all duration-300 border-slate-200 group">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div className="space-y-1 flex-1">
-            <CardTitle className="text-sm font-medium line-clamp-2">
+          <div className="space-y-2 flex-1">
+            <CardTitle className="text-sm font-semibold line-clamp-2 text-slate-800 group-hover:text-slate-900">
               {opportunity.title}
             </CardTitle>
             <Badge 
               variant="secondary" 
-              className={STAGE_COLORS[opportunity.stage as keyof typeof STAGE_COLORS]}
+              className={`${STAGE_COLORS[opportunity.stage as keyof typeof STAGE_COLORS]} font-medium shadow-sm`}
             >
               {STAGE_LABELS[opportunity.stage as keyof typeof STAGE_LABELS]}
             </Badge>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="opacity-60 group-hover:opacity-100 transition-opacity"
+              >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="bg-white shadow-lg border-slate-200">
               <DropdownMenuItem onClick={() => onEdit(opportunity)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Editar
@@ -121,43 +125,61 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4">
         {opportunity.contact && (
-          <div className="flex items-center text-sm text-muted-foreground">
-            <User className="h-4 w-4 mr-2" />
-            <span className="truncate">{opportunity.contact.company_name}</span>
+          <div className="flex items-center text-sm text-slate-600 bg-slate-50 rounded-lg p-2">
+            <User className="h-4 w-4 mr-2 text-slate-500" />
+            <span className="truncate font-medium">{opportunity.contact.company_name}</span>
           </div>
         )}
         
         {opportunity.estimated_value && (
-          <div className="flex items-center text-sm">
-            <DollarSign className="h-4 w-4 mr-2 text-green-600" />
-            <span className="font-medium text-green-600">
+          <div className="flex items-center justify-between text-sm bg-green-50 rounded-lg p-2">
+            <div className="flex items-center">
+              <DollarSign className="h-4 w-4 mr-2 text-green-600" />
+              <span className="text-slate-600">Valor estimado</span>
+            </div>
+            <span className="font-bold text-green-700">
               {formatCurrency(opportunity.estimated_value)}
             </span>
           </div>
         )}
         
         {opportunity.probability && (
-          <div className="flex items-center text-sm text-muted-foreground">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            <span>{opportunity.probability}% de probabilidade</span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm text-slate-600">
+              <div className="flex items-center">
+                <TrendingUp className="h-4 w-4 mr-2" />
+                <span>Probabilidade</span>
+              </div>
+              <span className="font-semibold">{opportunity.probability}%</span>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300" 
+                style={{ width: `${opportunity.probability}%` }}
+              ></div>
+            </div>
           </div>
         )}
         
         {opportunity.expected_close_date && (
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4 mr-2" />
+          <div className="flex items-center text-sm text-slate-600 bg-blue-50 rounded-lg p-2">
+            <Calendar className="h-4 w-4 mr-2 text-blue-600" />
             <span>
-              {format(new Date(opportunity.expected_close_date), 'dd/MM/yyyy', { locale: ptBR })}
+              Fechamento: {format(new Date(opportunity.expected_close_date), 'dd/MM/yyyy', { locale: ptBR })}
             </span>
           </div>
         )}
         
         {opportunity.assigned_to_profile && (
-          <div className="flex items-center text-xs text-muted-foreground">
-            <User className="h-3 w-3 mr-1" />
-            <span>Responsável: {opportunity.assigned_to_profile.name}</span>
+          <div className="flex items-center text-xs text-slate-500 border-t pt-3">
+            <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mr-2">
+              <span className="text-white font-semibold text-xs">
+                {opportunity.assigned_to_profile.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <span>{opportunity.assigned_to_profile.name}</span>
           </div>
         )}
       </CardContent>

@@ -20,32 +20,32 @@ type CrmOpportunity = Database['public']['Tables']['crm_opportunities']['Row'];
 const STAGE_CONFIG = {
   contato_inicial: {
     title: 'Contato Inicial',
-    color: 'bg-slate-100 text-slate-700 border-slate-200',
+    color: 'bg-gradient-to-br from-slate-50 to-slate-100 text-slate-700 border-slate-300 shadow-sm',
     icon: Users,
   },
   qualificado: {
     title: 'Qualificado',
-    color: 'bg-blue-100 text-blue-700 border-blue-200',
+    color: 'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 border-blue-300 shadow-sm',
     icon: Filter,
   },
   proposta_enviada: {
     title: 'Proposta Enviada',
-    color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    color: 'bg-gradient-to-br from-yellow-50 to-yellow-100 text-yellow-700 border-yellow-300 shadow-sm',
     icon: Target,
   },
   negociacao: {
     title: 'Negociação',
-    color: 'bg-orange-100 text-orange-700 border-orange-200',
+    color: 'bg-gradient-to-br from-orange-50 to-orange-100 text-orange-700 border-orange-300 shadow-sm',
     icon: TrendingUp,
   },
   fechado_ganhou: {
     title: 'Fechado (Ganhou)',
-    color: 'bg-green-100 text-green-700 border-green-200',
+    color: 'bg-gradient-to-br from-green-50 to-green-100 text-green-700 border-green-300 shadow-sm',
     icon: DollarSign,
   },
   fechado_perdeu: {
     title: 'Fechado (Perdeu)',
-    color: 'bg-red-100 text-red-700 border-red-200',
+    color: 'bg-gradient-to-br from-red-50 to-red-100 text-red-700 border-red-300 shadow-sm',
     icon: Users,
   },
 };
@@ -100,19 +100,19 @@ const CrmSalesFunnel: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6 bg-gradient-to-br from-slate-50 to-white min-h-screen">
       {/* Header com estatísticas */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Funil de Vendas</h2>
-          <p className="text-muted-foreground">
-            Gerencie suas oportunidades de venda
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">Funil de Vendas</h1>
+          <p className="text-slate-600 text-lg">
+            Gerencie suas oportunidades de venda com eficiência
           </p>
         </div>
         
         <div className="flex items-center gap-4">
           <Select value={filterAssignedTo} onValueChange={setFilterAssignedTo}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-56 bg-white shadow-sm border-slate-200">
               <SelectValue placeholder="Filtrar por responsável" />
             </SelectTrigger>
             <SelectContent>
@@ -121,7 +121,10 @@ const CrmSalesFunnel: React.FC = () => {
             </SelectContent>
           </Select>
           
-          <Button onClick={() => setShowNewOpportunity(true)}>
+          <Button 
+            onClick={() => setShowNewOpportunity(true)}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all duration-200"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Nova Oportunidade
           </Button>
@@ -129,52 +132,60 @@ const CrmSalesFunnel: React.FC = () => {
       </div>
 
       {/* Estatísticas gerais */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Oportunidades Ativas</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-gradient-to-br from-white to-slate-50 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-slate-700">Oportunidades Ativas</CardTitle>
+            <div className="p-2 bg-blue-100 rounded-full">
+              <Target className="h-5 w-5 text-blue-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.active}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-bold text-slate-800">{stats.active}</div>
+            <p className="text-sm text-slate-500 mt-1">
               {stats.total} no total
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fechadas (Ganhou)</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-green-700">Fechadas (Ganhou)</CardTitle>
+            <div className="p-2 bg-green-100 rounded-full">
+              <TrendingUp className="h-5 w-5 text-green-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.won}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-bold text-green-700">{stats.won}</div>
+            <p className="text-sm text-green-600 mt-1">
               Taxa: {stats.total > 0 ? Math.round((stats.won / stats.total) * 100) : 0}%
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Realizado</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
+        <Card className="bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-emerald-700">Valor Realizado</CardTitle>
+            <div className="p-2 bg-emerald-100 rounded-full">
+              <DollarSign className="h-5 w-5 text-emerald-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-emerald-700">
               {formatCurrency(stats.totalValue)}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Potencial</CardTitle>
-            <TrendingUp className="h-4 w-4 text-blue-600" />
+        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-blue-700">Potencial</CardTitle>
+            <div className="p-2 bg-blue-100 rounded-full">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-blue-700">
               {formatCurrency(stats.potentialValue)}
             </div>
           </CardContent>
@@ -182,26 +193,28 @@ const CrmSalesFunnel: React.FC = () => {
       </div>
 
       {/* Funil de vendas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         {Object.entries(STAGE_CONFIG).map(([stageKey, config]) => {
           const stageOpportunities = opportunitiesByStage[stageKey as keyof typeof opportunitiesByStage] || [];
           const IconComponent = config.icon;
           
           return (
-            <div key={stageKey} className="space-y-3">
-              <div className={`rounded-lg border-2 border-dashed p-3 ${config.color}`}>
+            <div key={stageKey} className="space-y-4">
+              <div className={`rounded-xl border-2 p-4 ${config.color} hover:scale-105 transition-all duration-200`}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <IconComponent className="h-4 w-4" />
-                    <h3 className="font-semibold text-sm">{config.title}</h3>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <IconComponent className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-bold text-sm">{config.title}</h3>
                   </div>
-                  <Badge variant="secondary" className="bg-white/50">
+                  <Badge variant="secondary" className="bg-white/80 text-slate-700 font-semibold px-3 py-1">
                     {stageOpportunities.length}
                   </Badge>
                 </div>
               </div>
               
-              <div className="space-y-3 min-h-[200px]">
+              <div className="space-y-4 min-h-[300px]">
                 {stageOpportunities.map((opportunity) => (
                   <OpportunityCard
                     key={opportunity.id}
@@ -212,8 +225,12 @@ const CrmSalesFunnel: React.FC = () => {
                 ))}
                 
                 {stageOpportunities.length === 0 && (
-                  <div className="text-center text-muted-foreground text-sm py-8">
-                    Nenhuma oportunidade
+                  <div className="bg-white/50 rounded-xl border-2 border-dashed border-slate-200 p-8">
+                    <div className="text-center text-slate-400">
+                      <Target className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-sm font-medium">Nenhuma oportunidade</p>
+                      <p className="text-xs mt-1">Arraste oportunidades para esta coluna</p>
+                    </div>
                   </div>
                 )}
               </div>

@@ -22,7 +22,9 @@ import {
   FileCheck,
   Calculator,
   Phone,
-  Target
+  Target,
+  Calendar,
+  FileText
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -61,6 +63,8 @@ const Sidebar = () => {
     { path: '/crm?tab=contacts', icon: Users, key: 'Contatos' },
     { path: '/crm?tab=interactions', icon: Phone, key: 'Interações' },
     { path: '/crm?tab=funnel', icon: Target, key: 'Funil de Vendas' },
+    { path: '/crm?tab=proposals', icon: FileText, key: 'Propostas Comerciais' },
+    { path: '/crm?tab=scheduling', icon: Calendar, key: 'Agendamento' },
   ];
 
   const otherMenuItems = [
