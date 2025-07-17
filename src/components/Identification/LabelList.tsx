@@ -16,7 +16,7 @@ const LabelList = () => {
 
   const handlePrint = async (labelId: string) => {
     const label = labels?.find(l => l.id === labelId);
-    if (!label?.reception) {
+    if (!label?.receptions) {
       toast.error('Dados da etiqueta incompletos');
       return;
     }
@@ -27,10 +27,10 @@ const LabelList = () => {
       // Generate and download PDF
       await generateLabelPDF({
         labelCode: label.label_code,
-        receptionCode: label.reception.reception_code,
-        productType: label.reception.product_type,
-        producerName: label.reception.producer?.name || 'N/A',
-        quantity: label.reception.quantity_kg,
+        receptionCode: label.receptions.reception_code,
+        productType: label.receptions.product_type,
+        producerName: label.receptions.producers?.name || 'N/A',
+        quantity: label.receptions.quantity_kg,
         receptionDate: format(new Date(label.created_at!), 'dd/MM/yyyy'),
         receptionId: label.reception_id,
       });
@@ -96,13 +96,13 @@ const LabelList = () => {
               {labels.map((label) => (
                 <TableRow key={label.id}>
                   <TableCell className="font-medium">{label.label_code}</TableCell>
-                  <TableCell>{label.reception?.reception_code}</TableCell>
+                  <TableCell>{label.receptions?.reception_code}</TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {label.reception?.product_type}
+                      {label.receptions?.product_type}
                     </Badge>
                   </TableCell>
-                  <TableCell>{label.reception?.producer?.name}</TableCell>
+                  <TableCell>{label.receptions?.producers?.name}</TableCell>
                   <TableCell>
                     {label.printed_at ? (
                       <Badge variant="default">Impressa</Badge>
