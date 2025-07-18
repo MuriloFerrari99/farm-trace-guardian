@@ -36,7 +36,7 @@ const CrmProposals = () => {
     setShowNewProposalModal(true);
   };
 
-  const handleGeneratePDF = async (proposalId: string, language: 'pt' | 'en') => {
+  const handleGeneratePDF = async (proposalId: string, language: 'pt' | 'en' | 'es') => {
     const proposal = proposals.find(p => p.id === proposalId);
     if (proposal) {
       generateProposalPDF(proposal, language);

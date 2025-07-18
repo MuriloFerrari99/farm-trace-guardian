@@ -130,7 +130,7 @@ export const useCommercialProposals = () => {
     }
   };
 
-  const generateProposalPDF = async (proposalId: string, language: 'pt' | 'en' = 'pt'): Promise<void> => {
+  const generateProposalPDF = async (proposalId: string, language: 'pt' | 'en' | 'es' = 'pt'): Promise<void> => {
     try {
       // Update language preference
       await updateProposal(proposalId, { language });

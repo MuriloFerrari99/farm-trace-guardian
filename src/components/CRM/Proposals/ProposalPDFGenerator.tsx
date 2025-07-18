@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -58,6 +59,50 @@ interface PDFContent {
     no: string;
   };
   en: {
+    title: string;
+    proposalNumber: string;
+    date: string;
+    validUntil: string;
+    client: string;
+    company: string;
+    contact: string;
+    email: string;
+    productInfo: string;
+    productName: string;
+    description: string;
+    commercialTerms: string;
+    unitPrice: string;
+    totalWeight: string;
+    totalValue: string;
+    currency: string;
+    incoterm: string;
+    portOfLoading: string;
+    portOfDischarge: string;
+    paymentTerms: string;
+    deliveryTime: string;
+    validityPeriod: string;
+    volumePackaging: string;
+    shippingFormat: string;
+    technicalSpecs: string;
+    co2Range: string;
+    o2Range: string;
+    temperature: string;
+    containerSealed: string;
+    certifications: string;
+    notes: string;
+    contactInfo: string;
+    exporterName: string;
+    exporterContact: string;
+    exporterEmail: string;
+    footer: string;
+    additionalCosts: string;
+    freight: string;
+    insurance: string;
+    days: string;
+    yes: string;
+    no: string;
+  };
+  es: {
     title: string;
     proposalNumber: string;
     date: string;
@@ -191,41 +236,142 @@ const content: PDFContent = {
     days: 'days',
     yes: 'Yes',
     no: 'No'
+  },
+  es: {
+    title: 'PROPUESTA COMERCIAL',
+    proposalNumber: 'Propuesta N°',
+    date: 'Fecha',
+    validUntil: 'Válido hasta',
+    client: 'CLIENTE',
+    company: 'Empresa',
+    contact: 'Contacto',
+    email: 'Email',
+    productInfo: 'DETALLES DE LA PROPUESTA',
+    productName: 'Producto',
+    description: 'Descripción',
+    commercialTerms: 'CONDICIONES COMERCIALES',
+    unitPrice: 'Precio Unitario',
+    totalWeight: 'Peso Total',
+    totalValue: 'Valor Total',
+    currency: 'Moneda',
+    incoterm: 'Incoterm',
+    portOfLoading: 'Puerto de Embarque',
+    portOfDischarge: 'Puerto de Descarga',
+    paymentTerms: 'Condiciones de Pago',
+    deliveryTime: 'Plazo de Entrega',
+    validityPeriod: 'Validez de la Propuesta',
+    volumePackaging: 'FORMATO DE ENVÍO',
+    shippingFormat: 'Formato de Envío',
+    technicalSpecs: 'ESPECIFICACIONES TÉCNICAS',
+    co2Range: 'CO2:',
+    o2Range: 'O2:',
+    temperature: 'Temperatura',
+    containerSealed: 'Válvulas y drenajes sellados',
+    certifications: 'CERTIFICACIONES',
+    notes: 'OBSERVACIONES',
+    contactInfo: 'INFORMACIÓN DE CONTACTO',
+    exporterName: 'Exportador',
+    exporterContact: 'Contacto',
+    exporterEmail: 'Email',
+    footer: 'Esta propuesta es válida por los días indicados y está sujeta a los términos y condiciones especificados.',
+    additionalCosts: 'COSTOS ADICIONALES',
+    freight: 'Flete',
+    insurance: 'Seguro',
+    days: 'días',
+    yes: 'Sí',
+    no: 'No'
   }
 };
 
-// Helper function to translate shipping format text
-const translateShippingFormat = (text: string, language: 'pt' | 'en'): string => {
+// Helper function to translate dynamic text content
+const translateText = (text: string, language: 'pt' | 'en' | 'es'): string => {
   if (!text || language === 'pt') return text;
   
-  // Common translations for shipping format
+  // Common translations dictionary
   const translations = {
-    'caixas plásticas': 'plastic boxes',
-    'ventiladas': 'ventilated',
-    'padronizadas': 'standardized',
-    'A mercadoria será acondicionada em': 'The merchandise will be packed in',
-    'embalagens de': 'packages of',
-    'cada': 'each',
-    'unidades': 'units',
-    'com': 'with',
-    'peso': 'weight',
-    'líquido': 'net',
-    'aproximado': 'approximately',
-    'de': 'of'
+    // Fruits and products
+    'abacate': { en: 'avocado', es: 'aguacate' },
+    'manga': { en: 'mango', es: 'mango' },
+    'limão': { en: 'lime', es: 'limón' },
+    'maracujá': { en: 'passion fruit', es: 'maracuyá' },
+    'goiaba': { en: 'guava', es: 'guayaba' },
+    'caju': { en: 'cashew', es: 'anacardo' },
+    'acerola': { en: 'acerola', es: 'acerola' },
+    'coco': { en: 'coconut', es: 'coco' },
+    
+    // Quality descriptions
+    'fresco': { en: 'fresh', es: 'fresco' },
+    'maduro': { en: 'ripe', es: 'maduro' },
+    'selecionado': { en: 'selected', es: 'seleccionado' },
+    'premium': { en: 'premium', es: 'premium' },
+    'orgânico': { en: 'organic', es: 'orgánico' },
+    'natural': { en: 'natural', es: 'natural' },
+    'qualidade superior': { en: 'superior quality', es: 'calidad superior' },
+    
+    // Shipping format terms
+    'caixas plásticas': { en: 'plastic boxes', es: 'cajas plásticas' },
+    'ventiladas': { en: 'ventilated', es: 'ventiladas' },
+    'padronizadas': { en: 'standardized', es: 'estandarizadas' },
+    'A mercadoria será acondicionada em': { en: 'The merchandise will be packed in', es: 'La mercancía será empacada en' },
+    'embalagens de': { en: 'packages of', es: 'empaques de' },
+    'cada': { en: 'each', es: 'cada' },
+    'unidades': { en: 'units', es: 'unidades' },
+    'com peso': { en: 'with weight', es: 'con peso' },
+    'líquido': { en: 'net', es: 'neto' },
+    'aproximado': { en: 'approximately', es: 'aproximadamente' },
+    'por pallet': { en: 'per pallet', es: 'por pallet' },
+    'por container': { en: 'per container', es: 'por contenedor' },
+    
+    // Common observations/notes
+    'produto de alta qualidade': { en: 'high quality product', es: 'producto de alta calidad' },
+    'armazenamento refrigerado': { en: 'refrigerated storage', es: 'almacenamiento refrigerado' },
+    'transporte refrigerado': { en: 'refrigerated transport', es: 'transporte refrigerado' },
+    'manter em temperatura controlada': { en: 'keep at controlled temperature', es: 'mantener a temperatura controlada' },
+    'produto perecível': { en: 'perishable product', es: 'producto perecedero' },
+    'certificação orgânica': { en: 'organic certification', es: 'certificación orgánica' },
+    'rastreabilidade completa': { en: 'full traceability', es: 'trazabilidad completa' },
+    'conforme regulamentações': { en: 'according to regulations', es: 'conforme a regulaciones' },
+    'inspeção sanitária': { en: 'sanitary inspection', es: 'inspección sanitaria' },
+    'documentação completa': { en: 'complete documentation', es: 'documentación completa' },
+    
+    // Units and measures
+    'quilos': { en: 'kilos', es: 'kilos' },
+    'toneladas': { en: 'tons', es: 'toneladas' },
+    'caixas': { en: 'boxes', es: 'cajas' },
+    'pallets': { en: 'pallets', es: 'pallets' },
+    'containers': { en: 'containers', es: 'contenedores' },
+    
+    // Common prepositions and conjunctions
+    'de': { en: 'of', es: 'de' },
+    'com': { en: 'with', es: 'con' },
+    'para': { en: 'for', es: 'para' },
+    'em': { en: 'in', es: 'en' },
+    'por': { en: 'per', es: 'por' },
+    'e': { en: 'and', es: 'y' },
+    'ou': { en: 'or', es: 'o' }
   };
   
   let translatedText = text;
   
-  // Apply translations
-  Object.entries(translations).forEach(([pt, en]) => {
-    const regex = new RegExp(pt, 'gi');
-    translatedText = translatedText.replace(regex, en);
+  // Apply translations based on target language
+  Object.entries(translations).forEach(([pt, translations]) => {
+    const targetTranslation = translations[language];
+    if (targetTranslation) {
+      const regex = new RegExp(`\\b${pt}\\b`, 'gi');
+      translatedText = translatedText.replace(regex, targetTranslation);
+    }
   });
   
   return translatedText;
 };
 
-export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt' | 'en' = 'pt'): void => {
+// Helper function to translate shipping format text
+const translateShippingFormat = (text: string, language: 'pt' | 'en' | 'es'): string => {
+  if (!text || language === 'pt') return text;
+  return translateText(text, language);
+};
+
+export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt' | 'en' | 'es' = 'pt'): void => {
   const doc = new jsPDF();
   const t = content[language];
   
@@ -319,9 +465,13 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   
-  const proposalDate = new Date().toLocaleDateString(language === 'pt' ? 'pt-BR' : 'en-US');
+  const proposalDate = new Date().toLocaleDateString(
+    language === 'pt' ? 'pt-BR' : language === 'en' ? 'en-US' : 'es-ES'
+  );
   const validUntilDate = proposal.expires_at 
-    ? new Date(proposal.expires_at).toLocaleDateString(language === 'pt' ? 'pt-BR' : 'en-US')
+    ? new Date(proposal.expires_at).toLocaleDateString(
+        language === 'pt' ? 'pt-BR' : language === 'en' ? 'en-US' : 'es-ES'
+      )
     : 'N/A';
   
   // Left column
@@ -357,17 +507,26 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
   
   yPosition = createTable(clientHeaders, clientRows, yPosition);
   
-  // Product Details Table
+  // Product Details Table with translation
   const productHeaders = [t.productInfo];
   const productRows = [
     [`${t.productName}: ${proposal.product_name}`],
-    [`${t.unitPrice}: ${proposal.currency} ${proposal.unit_price.toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US', { minimumFractionDigits: 2 })}/kg`],
-    [`${t.totalWeight}: ${proposal.total_weight_kg.toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US')} kg`],
-    [`${t.totalValue}: ${proposal.currency} ${(proposal.total_value || 0).toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US', { minimumFractionDigits: 2 })}`]
+    [`${t.unitPrice}: ${proposal.currency} ${proposal.unit_price.toLocaleString(
+      language === 'pt' ? 'pt-BR' : language === 'en' ? 'en-US' : 'es-ES', 
+      { minimumFractionDigits: 2 }
+    )}/kg`],
+    [`${t.totalWeight}: ${proposal.total_weight_kg.toLocaleString(
+      language === 'pt' ? 'pt-BR' : language === 'en' ? 'en-US' : 'es-ES'
+    )} kg`],
+    [`${t.totalValue}: ${proposal.currency} ${(proposal.total_value || 0).toLocaleString(
+      language === 'pt' ? 'pt-BR' : language === 'en' ? 'en-US' : 'es-ES', 
+      { minimumFractionDigits: 2 }
+    )}`]
   ];
   
   if (proposal.product_description) {
-    productRows.splice(1, 0, [`${t.description}: ${proposal.product_description}`]);
+    const translatedDescription = translateText(proposal.product_description, language);
+    productRows.splice(1, 0, [`${t.description}: ${translatedDescription}`]);
   }
   
   yPosition = createTable(productHeaders, productRows, yPosition);
@@ -426,10 +585,16 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
     const costsRows = [];
     
     if (proposal.freight_cost) {
-      costsRows.push([`${t.freight}: ${proposal.currency} ${proposal.freight_cost.toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US', { minimumFractionDigits: 2 })}`]);
+      costsRows.push([`${t.freight}: ${proposal.currency} ${proposal.freight_cost.toLocaleString(
+        language === 'pt' ? 'pt-BR' : language === 'en' ? 'en-US' : 'es-ES', 
+        { minimumFractionDigits: 2 }
+      )}`]);
     }
     if (proposal.insurance_cost) {
-      costsRows.push([`${t.insurance}: ${proposal.currency} ${proposal.insurance_cost.toLocaleString(language === 'pt' ? 'pt-BR' : 'en-US', { minimumFractionDigits: 2 })}`]);
+      costsRows.push([`${t.insurance}: ${proposal.currency} ${proposal.insurance_cost.toLocaleString(
+        language === 'pt' ? 'pt-BR' : language === 'en' ? 'en-US' : 'es-ES', 
+        { minimumFractionDigits: 2 }
+      )}`]);
     }
     
     yPosition = createTable(costsHeaders, costsRows, yPosition);
@@ -442,10 +607,11 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
     yPosition = createTable(certsHeaders, certsRows, yPosition);
   }
   
-  // Notes/Observations
+  // Notes/Observations with translation
   if (proposal.notes) {
     const notesHeaders = [t.notes];
-    const notesRows = [[proposal.notes]];
+    const translatedNotes = translateText(proposal.notes, language);
+    const notesRows = [[translatedNotes]];
     yPosition = createTable(notesHeaders, notesRows, yPosition);
   }
   
