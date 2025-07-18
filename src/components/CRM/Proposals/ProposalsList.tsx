@@ -42,7 +42,7 @@ interface ProposalsListProps {
   proposals: CommercialProposal[];
   loading: boolean;
   onEdit: (proposal: CommercialProposal) => void;
-  onGeneratePDF: (proposalId: string, language: 'pt' | 'en') => void;
+  onGeneratePDF: (proposalId: string, language: 'pt' | 'en' | 'es') => void;
   onSend: (proposalId: string) => void;
   onStatusUpdate: (proposalId: string, status: string) => void;
   onDelete: (proposalId: string) => void;
@@ -208,6 +208,10 @@ const ProposalsList: React.FC<ProposalsListProps> = ({
                       <DropdownMenuItem onClick={() => onGeneratePDF(proposal.id, 'en')}>
                         <Download className="h-4 w-4 mr-2" />
                         PDF English
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onGeneratePDF(proposal.id, 'es')}>
+                        <Download className="h-4 w-4 mr-2" />
+                        PDF Español
                       </DropdownMenuItem>
                       {proposal.status === 'rascunho' && (
                         <DropdownMenuItem onClick={() => onSend(proposal.id)}>
