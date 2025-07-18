@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Eye, EyeOff, UserPlus } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface SignUpFormProps {
@@ -17,6 +17,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { register } = useAuthContext();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -41,21 +42,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess }) => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            name: formData.name,
-          },
-        },
-      });
-
-      if (error) {
-        toast.error('Erro ao criar conta: ' + error.message);
-      } else {
-        toast.success('Conta criada com sucesso! Verifique seu email para ativá-la.');
+      const result = await register(formData.name, formData.email, formData.password);
+      
+      if (result.success) {
+        toast.success('Conta criada com sucesso!');
         onSuccess();
+      } else {
+        toast.error(result.error || 'Erro ao criar conta');
       }
     } catch (error) {
       toast.error('Erro inesperado ao criar conta');

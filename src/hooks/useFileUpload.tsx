@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { apiClient } from '@/lib/api-client';
 import { useErrorHandler } from './useErrorHandler';
 
 interface FileUploadOptions {
@@ -55,12 +56,6 @@ export const useFileUpload = (options: FileUploadOptions) => {
 
   const uploadFile = async (file: File, fileName?: string): Promise<string | null> => {
     try {
-      // Validate authentication
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Usuário não autenticado');
-      }
-
       // Validate file
       if (!validateFile(file)) {
         return null;
@@ -69,27 +64,13 @@ export const useFileUpload = (options: FileUploadOptions) => {
       setIsUploading(true);
       setUploadProgress(0);
 
-      // Generate unique filename
-      const fileExtension = file.name.split('.').pop();
-      const uniqueFileName = fileName || `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
-      const fullPath = folder ? `${folder}/${uniqueFileName}` : uniqueFileName;
-
       // Upload file
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .upload(fullPath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (error) {
-        throw error;
-      }
-
+      const response = await apiClient.uploadFile(file, bucket, folder);
+      
       setUploadProgress(100);
       handleSuccess('Arquivo enviado com sucesso!');
       
-      return data.path;
+      return response.data.object_name;
     } catch (error: any) {
       handleError(error, 'upload de arquivo');
       return null;
@@ -101,20 +82,7 @@ export const useFileUpload = (options: FileUploadOptions) => {
 
   const deleteFile = async (filePath: string): Promise<boolean> => {
     try {
-      // Validate authentication
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Usuário não autenticado');
-      }
-
-      const { error } = await supabase.storage
-        .from(bucket)
-        .remove([filePath]);
-
-      if (error) {
-        throw error;
-      }
-
+      await apiClient.delete(`/files/${bucket}/${filePath}`);
       handleSuccess('Arquivo removido com sucesso!');
       return true;
     } catch (error: any) {
@@ -124,11 +92,9 @@ export const useFileUpload = (options: FileUploadOptions) => {
   };
 
   const getFileUrl = (filePath: string): string => {
-    const { data } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath);
-    
-    return data.publicUrl;
+    // Return MinIO URL
+    const baseUrl = import.meta.env.VITE_MINIO_URL || 'http://localhost:9000';
+    return `${baseUrl}/${bucket}/${filePath}`;
   };
 
   return {

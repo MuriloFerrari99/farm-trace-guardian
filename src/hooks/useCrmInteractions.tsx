@@ -1,5 +1,6 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { apiClient } from '@/lib/api-client';
 import { useToast } from '@/hooks/use-toast';
 
 export const useCrmInteractions = (contactId?: string) => {
@@ -9,46 +10,20 @@ export const useCrmInteractions = (contactId?: string) => {
   const { data: interactions, isLoading } = useQuery({
     queryKey: ['crm-interactions', contactId],
     queryFn: async () => {
-      let query = supabase
-        .from('crm_interactions')
-        .select(`
-          *,
-          contact:crm_contacts(company_name, contact_name),
-          created_by_profile:profiles!crm_interactions_created_by_fkey(name)
-        `)
-        .order('interaction_date', { ascending: false });
-
+      let url = '/crm/interactions';
       if (contactId) {
-        query = query.eq('contact_id', contactId);
+        url += `?contact_id=${contactId}`;
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data;
+      const response = await apiClient.get(url);
+      return response.data;
     },
     enabled: true
   });
 
   const createInteractionMutation = useMutation({
     mutationFn: async (interactionData: any) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      const { data, error } = await supabase
-        .from('crm_interactions')
-        .insert([{
-          ...interactionData,
-          created_by: user.id
-        }])
-        .select(`
-          *,
-          contact:crm_contacts(company_name, contact_name),
-          created_by_profile:profiles!crm_interactions_created_by_fkey(name)
-        `)
-        .single();
-
-      if (error) throw error;
-      return data;
+      const response = await apiClient.createInteraction(interactionData);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['crm-interactions'] });
@@ -58,10 +33,10 @@ export const useCrmInteractions = (contactId?: string) => {
         description: "Interação registrada com sucesso",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Erro",
-        description: "Erro ao registrar interação: " + error.message,
+        description: "Erro ao registrar interação: " + (error.response?.data?.detail || error.message),
         variant: "destructive",
       });
     }

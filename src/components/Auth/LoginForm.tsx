@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface LoginFormProps {
@@ -13,22 +13,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuthContext();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast.error('Erro ao fazer login: ' + error.message);
-      } else {
+      const result = await login(email, password);
+      
+      if (result.success) {
         toast.success('Login realizado com sucesso!');
         onSuccess();
+      } else {
+        toast.error(result.error || 'Erro ao fazer login');
       }
     } catch (error) {
       toast.error('Erro inesperado ao fazer login');

@@ -1,72 +1,99 @@
 
 import { useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/integrations/supabase/types';
+import { apiClient } from '@/lib/api-client';
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+  role?: string;
+  is_active: boolean;
+  created_at: string;
+}
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
+    // Check for stored token and user on initialization
+    const token = localStorage.getItem('access_token');
+    const storedUser = localStorage.getItem('user');
+    
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        // Verify token is still valid
+        apiClient.getCurrentUser()
+          .then((userData) => {
+            setUser(userData.data);
+            localStorage.setItem('user', JSON.stringify(userData.data));
+          })
+          .catch(() => {
+            // Token invalid, clear storage
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+            setUser(null);
+          })
+          .finally(() => setLoading(false));
+      } catch (error) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        setUser(null);
         setLoading(false);
       }
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  const fetchProfile = async (userId: string) => {
+  const login = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      const response = await apiClient.login(email, password);
+      
+      localStorage.setItem('access_token', response.data.access_token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      setUser(response.data.user);
+      
+      return { success: true };
+    } catch (error: any) {
+      return { 
+        success: false, 
+        error: error.response?.data?.detail || 'Erro ao fazer login' 
+      };
+    }
+  };
 
-      if (error) {
-        console.error('Error fetching profile:', error);
-      } else {
-        setProfile(data);
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    } finally {
-      setLoading(false);
+  const register = async (name: string, email: string, password: string) => {
+    try {
+      const response = await apiClient.register(name, email, password);
+      
+      localStorage.setItem('access_token', response.data.access_token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      setUser(response.data.user);
+      
+      return { success: true };
+    } catch (error: any) {
+      return { 
+        success: false, 
+        error: error.response?.data?.detail || 'Erro ao criar conta' 
+      };
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
+    setUser(null);
   };
 
   return {
     user,
-    profile,
+    profile: user, // For compatibility
     loading,
     signOut,
+    login,
+    register,
     isAuthenticated: !!user,
   };
 };

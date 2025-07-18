@@ -1,36 +1,23 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Database } from '@/integrations/supabase/types';
 
-type CommercialProposal = Database['public']['Tables']['commercial_proposals']['Row'];
-type CommercialProposalInsert = Database['public']['Tables']['commercial_proposals']['Insert'];
-type CommercialProposalUpdate = Database['public']['Tables']['commercial_proposals']['Update'];
+import { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api-client';
+import { useToast } from '@/hooks/use-toast';
 
 export const useCommercialProposals = () => {
-  const [proposals, setProposals] = useState<CommercialProposal[]>([]);
+  const [proposals, setProposals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const fetchProposals = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('commercial_proposals')
-        .select(`
-          *,
-          contact:crm_contacts(contact_name, company_name, email),
-          opportunity:crm_opportunities(title, stage)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProposals(data || []);
+      const response = await apiClient.getProposals();
+      setProposals(response.data || []);
     } catch (error: any) {
       console.error('Error fetching proposals:', error);
       toast({
         title: "Erro ao carregar propostas",
-        description: error.message,
+        description: error.response?.data?.detail || error.message,
         variant: "destructive",
       });
     } finally {
@@ -38,93 +25,45 @@ export const useCommercialProposals = () => {
     }
   };
 
-  const createProposal = async (proposal: CommercialProposalInsert): Promise<CommercialProposal | undefined> => {
+  const createProposal = async (proposal: any): Promise<any | undefined> => {
     try {
-      // Generate proposal number
-      const { data: proposalNumber, error: numberError } = await supabase
-        .rpc('generate_proposal_number');
-
-      if (numberError) throw numberError;
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      const proposalData = {
-        ...proposal,
-        proposal_number: proposalNumber,
-        created_by: user.id,
-        expires_at: new Date(Date.now() + (proposal.validity_days || 30) * 24 * 60 * 60 * 1000).toISOString(),
-      };
-
-      // Debug log to check data being sent
-      console.log('Creating proposal with data:', {
-        co2_range_min: proposalData.co2_range_min,
-        co2_range_max: proposalData.co2_range_max,
-        o2_range_min: proposalData.o2_range_min,
-        o2_range_max: proposalData.o2_range_max,
-        temperature_min: proposalData.temperature_min,
-        temperature_max: proposalData.temperature_max,
-        container_sealed: proposalData.container_sealed
-      });
-
-      const { data, error } = await supabase
-        .from('commercial_proposals')
-        .insert(proposalData)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      console.log('Proposal created successfully:', {
-        id: data.id,
-        co2_range_min: data.co2_range_min,
-        co2_range_max: data.co2_range_max,
-        o2_range_min: data.o2_range_min,
-        o2_range_max: data.o2_range_max,
-        temperature_min: data.temperature_min,
-        temperature_max: data.temperature_max,
-        container_sealed: data.container_sealed
-      });
+      const response = await apiClient.createProposal(proposal);
 
       toast({
         title: "Proposta criada com sucesso!",
-        description: `Número: ${data.proposal_number}`,
+        description: `Número: ${response.data.proposal_number}`,
       });
 
       fetchProposals();
-      return data;
+      return response.data;
     } catch (error: any) {
       console.error('Error creating proposal:', error);
       toast({
         title: "Erro ao criar proposta",
-        description: error.message,
+        description: error.response?.data?.detail || error.message,
         variant: "destructive",
       });
     }
   };
 
-  const updateProposal = async (id: string, updates: CommercialProposalUpdate): Promise<CommercialProposal | undefined> => {
+  const updateProposal = async (id: string, updates: any): Promise<any | undefined> => {
     try {
-      const { data, error } = await supabase
-        .from('commercial_proposals')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
+      // Since we don't have a generic update endpoint, we'll handle status updates
+      if (updates.status) {
+        const response = await apiClient.updateProposalStatus(id, updates.status);
+        
+        toast({
+          title: "Proposta atualizada com sucesso!",
+        });
 
-      if (error) throw error;
-
-      toast({
-        title: "Proposta atualizada com sucesso!",
-      });
-
-      fetchProposals();
-      return data;
+        fetchProposals();
+        return response.data;
+      }
     } catch (error: any) {
       console.error('Error updating proposal:', error);
       toast({
         title: "Erro ao atualizar proposta",
-        description: error.message,
+        description: error.response?.data?.detail || error.message,
         variant: "destructive",
       });
     }
@@ -132,10 +71,7 @@ export const useCommercialProposals = () => {
 
   const generateProposalPDF = async (proposalId: string, language: 'pt' | 'en' | 'es' = 'pt'): Promise<void> => {
     try {
-      // Update language preference
-      await updateProposal(proposalId, { language });
-      
-      // This will be implemented with jsPDF
+      // This will be implemented later with jsPDF client-side
       toast({
         title: "PDF gerado com sucesso!",
         description: "A proposta foi salva em PDF",
@@ -165,7 +101,7 @@ export const useCommercialProposals = () => {
       console.error('Error sending proposal:', error);
       toast({
         title: "Erro ao enviar proposta",
-        description: error.message,
+        description: error.response?.data?.detail || error.message,
         variant: "destructive",
       });
     }
@@ -173,12 +109,7 @@ export const useCommercialProposals = () => {
 
   const deleteProposal = async (proposalId: string): Promise<boolean> => {
     try {
-      const { error } = await supabase
-        .from('commercial_proposals')
-        .delete()
-        .eq('id', proposalId);
-
-      if (error) throw error;
+      await apiClient.delete(`/crm/proposals/${proposalId}`);
 
       toast({
         title: "Proposta excluída com sucesso!",
@@ -191,7 +122,7 @@ export const useCommercialProposals = () => {
       console.error('Error deleting proposal:', error);
       toast({
         title: "Erro ao excluir proposta",
-        description: error.message,
+        description: error.response?.data?.detail || error.message,
         variant: "destructive",
       });
       return false;
