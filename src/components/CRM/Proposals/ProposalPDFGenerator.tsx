@@ -130,8 +130,8 @@ const content: PDFContent = {
     volumePackaging: 'FORMATO DE ENVIO',
     shippingFormat: 'Formato de Envio',
     technicalSpecs: 'ESPECIFICAÇÕES TÉCNICAS',
-    co2Range: 'CO₂',
-    o2Range: 'O₂',
+    co2Range: 'CO2:',
+    o2Range: 'O2:',
     temperature: 'Temperatura',
     containerSealed: 'Válvulas e drenos lacrados',
     certifications: 'CERTIFICAÇÕES',
@@ -174,8 +174,8 @@ const content: PDFContent = {
     volumePackaging: 'SHIPPING FORMAT',
     shippingFormat: 'Shipping Format',
     technicalSpecs: 'TECHNICAL SPECIFICATIONS',
-    co2Range: 'CO₂',
-    o2Range: 'O₂',
+    co2Range: 'CO2:',
+    o2Range: 'O2:',
     temperature: 'Temperature',
     containerSealed: 'Sealed valves and drains',
     certifications: 'CERTIFICATIONS',
@@ -192,6 +192,37 @@ const content: PDFContent = {
     yes: 'Yes',
     no: 'No'
   }
+};
+
+// Helper function to translate shipping format text
+const translateShippingFormat = (text: string, language: 'pt' | 'en'): string => {
+  if (!text || language === 'pt') return text;
+  
+  // Common translations for shipping format
+  const translations = {
+    'caixas plásticas': 'plastic boxes',
+    'ventiladas': 'ventilated',
+    'padronizadas': 'standardized',
+    'A mercadoria será acondicionada em': 'The merchandise will be packed in',
+    'embalagens de': 'packages of',
+    'cada': 'each',
+    'unidades': 'units',
+    'com': 'with',
+    'peso': 'weight',
+    'líquido': 'net',
+    'aproximado': 'approximately',
+    'de': 'of'
+  };
+  
+  let translatedText = text;
+  
+  // Apply translations
+  Object.entries(translations).forEach(([pt, en]) => {
+    const regex = new RegExp(pt, 'gi');
+    translatedText = translatedText.replace(regex, en);
+  });
+  
+  return translatedText;
 };
 
 export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt' | 'en' = 'pt'): void => {
@@ -373,18 +404,19 @@ export const generateProposalPDF = (proposal: CommercialProposal, language: 'pt'
   
   const techHeaders = [t.technicalSpecs];
   const techRows = [
-    [`${t.co2Range}: ${proposal.co2_range_min ?? 3}% - ${proposal.co2_range_max ?? 10}%`],
-    [`${t.o2Range}: ${proposal.o2_range_min ?? 2}% - ${proposal.o2_range_max ?? 5}%`],
+    [`${t.co2Range} ${proposal.co2_range_min ?? 3}% - ${proposal.co2_range_max ?? 10}%`],
+    [`${t.o2Range} ${proposal.o2_range_min ?? 2}% - ${proposal.o2_range_max ?? 5}%`],
     [`${t.temperature}: ${proposal.temperature_min ?? 5}°C - ${proposal.temperature_max ?? 7}°C`],
     [`${t.containerSealed}: ${proposal.container_sealed ? t.yes : t.no}`]
   ];
   
   yPosition = createTable(techHeaders, techRows, yPosition);
   
-  // Shipping Format
+  // Shipping Format with translation
   if (proposal.shipping_format) {
     const shippingHeaders = [t.volumePackaging];
-    const shippingRows = [[proposal.shipping_format]];
+    const translatedShippingFormat = translateShippingFormat(proposal.shipping_format, language);
+    const shippingRows = [[translatedShippingFormat]];
     yPosition = createTable(shippingHeaders, shippingRows, yPosition);
   }
   
